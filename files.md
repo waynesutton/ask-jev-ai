@@ -27,7 +27,7 @@ Brief map of the codebase. Keep this current when files are added or change purp
 - `convex/convex.config.ts` Installs the sharded counter, rate limiter, Convex Auth v2 (core, password provider, username), and static hosting components. Static site owns `/`, auth routes live under `/auth`, app HTTP routes under `/api`. Declares `AUTH_PRIVATE_KEY` and `AUTH_JWKS`.
 - `convex/auth.config.ts` Custom JWT provider pointed at the deployment's own `/auth/.well-known/jwks.json`.
 - `convex/auth.ts` `setupCore` and `setupUsernamePassword` exports: `signOut`, `refreshSession`, `isAuthenticated`, `signInWithPassword`, `signUpWithPassword`. Attaches `internal.users.createUser`.
-- `convex/users.ts` `createUser` callback for auth. Throws "Sign up is closed" unless the username matches `ADMIN_USERNAME`.
+- `convex/users.ts` `createUser` callback for auth. Throws "Sign up is closed" unless `ADMIN_SIGNUP_OPEN=1`, the `users` table is empty, and the username matches `ADMIN_USERNAME`.
 - `convex/admin.ts` Admin only. `me` (signed in, is admin, configured), paginated `list` narrowed by `filter` (all, live, blocked, hidden) with reply, topic, harm, full text `search` across every status with the same filter, `setHidden`.
 - `convex/lib/admin.ts` `normalizeUsername`, `adminUsername` (reads `ADMIN_USERNAME`), `requireAdmin` (resolves the auth user and compares to the env var).
 - `convex/schema.ts` `users` table (`username`, `by_username`) and `messages` table with `by_status`, `by_session`, and `by_hidden` indexes, the `search_text` full text index on `text` filtered by status, plus the optional `hidden` flag. Exports the `messageStatus` validator.
@@ -48,10 +48,10 @@ Brief map of the codebase. Keep this current when files are added or change purp
 ## src
 
 - `src/main.tsx` Creates the `ConvexReactClient` from `VITE_CONVEX_URL`, wraps `App` in `ConvexAuthProvider` (refresh and sign out from `api.auth`, no ambient sign ins).
-- `src/App.tsx` Routes `/admin` to `Admin`, everything else to `Home`. Home is the page layout, no header or footer: hero with a mono top row (section anchors to the wall and how it works, an `Admin` link only for the signed in admin, "Powered by" credit, theme toggle), crop marks, centered display headline, and three columns (copy, composer with Yours, ember count panel), then wall, how it works, and a centered two line colophon (builder credit, TypeSafe AI disclaimer).
+- `src/App.tsx` Routes `/admin` to `Admin`, `/terms` and `/privacy` to the legal pages, everything else to `Home`. Home is the page layout, no header or footer: hero with a mono top row (section anchors to the wall and how it works, an `Admin` link only for the signed in admin, "Powered by" credit, theme toggle), crop marks, centered display headline, and three columns (copy, composer with Yours, ember count panel), then wall, how it works, and a centered three line colophon (builder credit, TypeSafe AI disclaimer, then Terms, Privacy, Source).
 - `src/styles.css` Two skins on one structure. Light is Caldera (pumice, limestone, ember, Archivo compressed display, DM Sans 500, DM Mono labels, 40px and pill radii, flat). Dark keeps ink, charcoal, Inter, hairlines, 8px cards. Every difference is a token on `:root` or `html[data-theme="dark"]`. No Tailwind.
 - `src/vite-env.d.ts` Vite client types.
-- `src/lib/session.ts` Anonymous session id in `localStorage`.
+- `src/lib/session.ts` Anonymous session id in `localStorage`. A UUID, regenerated if the stored value is under 32 characters.
 - `src/lib/format.ts` Number grouping, odometer split (dim leading zeros), percent, USD with sub cent precision, time ago, `stopwatch` (`Nd hh:mm:ss`), `roughDuration` (`~Nm`, `~Nh`, `~Nd`, `~Ny Nd`).
 - `src/hooks/useCountUp.ts` Eases the counter between values. Honours reduced motion.
 - `src/hooks/useNow.ts` Ticking clock for relative timestamps.
@@ -66,6 +66,7 @@ Brief map of the codebase. Keep this current when files are added or change purp
 - `src/components/Admin.tsx` The `/admin` page. Sets `noindex` on mount. Sign in / create account form with Auth v2 error copy, "Not authorized" state for a signed in non admin, and the dashboard: counts, a segmented filter (All, Live, Held, Hidden) beside a static search pill, every matching message paginated or the search hits, Hide / Unhide per row.
 - `src/components/JevAnswers.tsx` Per card toggle, open by default, with Jev's answers as a small bar chart: each row is the question, the answer word, and a horizontal band with the percent in a fixed column. Rows are "Jev says" (the reply), feel, topic, and one "Fits the wall?" row that folds the three safety probes into yes or a one line reason. A held row fills its bar in accent.
 - `src/components/ScrollArrows.tsx` Two floating ghost circles fixed to the bottom right with Phosphor `ArrowUp` and `ArrowDown`. Each fades out and leaves the tab order when its end of the page is within 320px. Scrolls with the page's own `scroll-behavior`.
+- `src/components/Legal.tsx` `Terms` and `Privacy` for `/terms` and `/privacy`, rendered by one `LegalPage` shell: admin style top row (back link, theme toggle), heading, last updated line, sections as data (paragraph or bullet list) split by dotted rules, and a footer linking terms, privacy, and the repo. Copy covers the anonymous wall as it runs today and the planned accounts layer (accounts, private asks, model answers via the Convex AI Gateway, profiles, deletion) plus admin moderation: hide, pause, block, restore when abuse is suspected. Maintainer named; TypeSafe AI, Convex, Inc., and the model providers named as third parties and not parties. Update `UPDATED` when the copy changes.
 - `src/components/HowItWorks.tsx` Centered intro on what Jev does, then five flat fact cards. The Judge, Database, and Hosting cards link to the TypeSafe docs, convex.dev, and the static hosting component page; `Fact` renders an anchor when given `href`.
 
 ## Docs
@@ -81,6 +82,8 @@ Brief map of the codebase. Keep this current when files are added or change purp
 - `prds/admin-search-filter.md` Admin filter and search, and the blur only hide on the wall.
 - `prds/wall-search.md` Full text search over the wall: the index, the `search` query, the pill UI, edge cases, and what was verified.
 - `prds/ask-shape.md` Why four in ten prod asks got no answer, the guide above the box that fixes it, a costed plan for an either or pick in the same request, and an assessment of the three answer rows.
+- `prds/sec-check.md` Security review of the function API with probe results, and the two fixes: the admin sign up window and the session id floor.
+- `prds/terms-privacy.md` Terms and privacy pages: why the OpenSync text could not be reused, what this app collects, the routes, the colophon links, and verification.
 - `prds/admin-ratelimit-clock.md` Admin at `/admin` with Convex Auth v2 gated to one email, hidden messages masked server side, IP rate limit, and the clock to one million. Verification and completion log.
 - `task.md` To do and completed work with timestamps.
 - `changelog.md` Keep a Changelog format.

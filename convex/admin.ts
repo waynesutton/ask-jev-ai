@@ -4,7 +4,7 @@ import { getAuthUserId } from "@convex-dev/auth/core";
 import { mutation, query } from "./_generated/server";
 import type { Doc } from "./_generated/dataModel";
 import { messageStatus } from "./schema";
-import { adminUsername, requireAdmin } from "./lib/admin";
+import { adminUsername, requireAdmin, signupOpen } from "./lib/admin";
 
 // Who is calling. Cheap enough to run on every /admin render. Does not
 // throw so the page can show "sign in" vs "not authorized" without a catch.
@@ -16,17 +16,26 @@ export const me = query({
     username: v.union(v.string(), v.null()),
     // Whether ADMIN_USERNAME is set at all. Drives the sign up hint.
     configured: v.boolean(),
+    // Whether ADMIN_SIGNUP_OPEN=1. Shows or hides the create account button.
+    signupOpen: v.boolean(),
   }),
   handler: async (ctx) => {
     const configured = adminUsername() !== null;
+    const open = signupOpen();
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
-      return { signedIn: false, admin: false, username: null, configured };
+      return {
+        signedIn: false,
+        admin: false,
+        username: null,
+        configured,
+        signupOpen: open,
+      };
     }
     const user = await ctx.db.get(userId);
     const username = user?.username ?? null;
     const admin = username !== null && username === adminUsername();
-    return { signedIn: true, admin, username, configured };
+    return { signedIn: true, admin, username, configured, signupOpen: open };
   },
 });
 

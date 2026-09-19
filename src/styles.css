@@ -591,6 +591,30 @@ button:disabled {
   color: var(--muted);
 }
 
+/* Third colophon line. Muted by default so the credit above stays the
+   loudest, ink on hover, dotted separators between the three. */
+.colophon__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  margin-top: var(--space-4);
+}
+
+.colophon__links a {
+  color: var(--muted);
+}
+
+.colophon__links a:hover,
+.colophon__links a:focus-visible {
+  color: var(--ink);
+}
+
+.colophon__links a + a::before {
+  content: "·";
+  margin-right: var(--space-12);
+  color: var(--muted);
+}
+
 /* Scroll arrows. Two ghost circles stacked on the right edge, paper filled so
    they stay legible over cards. Each one fades and slides out when its
    destination is already in view, and drops out of the tab order too. */
@@ -1349,6 +1373,88 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: var(--space-32);
+}
+
+/* Legal pages (/terms, /privacy). Same top row as admin, then one reading
+   column. Sections open with a dotted rule like the page sections do. */
+.legal {
+  min-height: 100dvh;
+  padding: var(--space-32) 0 var(--space-80);
+}
+
+.legal__body {
+  max-width: 720px;
+  margin-top: var(--space-48);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-32);
+}
+
+.legal__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding-bottom: var(--space-16);
+}
+
+.legal__head .heading-lg {
+  margin: var(--space-4) 0;
+}
+
+.legal__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding-top: var(--space-24);
+  border-top: var(--divider);
+}
+
+.legal__section .heading-sm {
+  margin-bottom: var(--space-4);
+}
+
+.legal__section a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--hairline);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 160ms ease;
+}
+
+.legal__section a:hover,
+.legal__section a:focus-visible {
+  text-decoration-color: var(--ink);
+}
+
+.legal__section code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  color: var(--ink);
+}
+
+.legal__list {
+  margin: 0;
+  padding-left: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.legal__foot {
+  display: flex;
+  gap: var(--space-12);
+  padding-top: var(--space-24);
+  border-top: var(--divider);
+}
+
+.legal__foot a {
+  color: var(--muted);
+  transition: color 160ms ease;
+}
+
+.legal__foot a:hover,
+.legal__foot a:focus-visible {
+  color: var(--ink);
 }
 
 .auth {

@@ -3,9 +3,13 @@
 
 const KEY = "ftm.session";
 
+// Matches the floor `messages.send` enforces. A UUID is 36 characters, so
+// anything shorter is stale or tampered and gets replaced.
+const MIN_LENGTH = 32;
+
 export function getSessionId(): string {
   const existing = window.localStorage.getItem(KEY);
-  if (existing && existing.length >= 8) {
+  if (existing && existing.length >= MIN_LENGTH) {
     return existing;
   }
   const fresh = crypto.randomUUID();

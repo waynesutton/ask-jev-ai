@@ -11,6 +11,12 @@ import { rateLimiter } from "./lib/rateLimits";
 import { counters } from "./lib/counters";
 import { costUsd } from "./lib/pricing";
 
+// Session id bounds. The client mints a UUID (36 chars). The floor keeps a
+// tampered client from picking a short id that someone else could guess
+// and read through `mine`.
+const SESSION_MIN = 32;
+const SESSION_MAX = 64;
+
 const REPLY_KEYS = Object.keys(REPLIES) as Array<keyof typeof REPLIES>;
 
 // Jev's raw answers, present once the message has been judged. This is
@@ -130,7 +136,10 @@ export const send = mutation({
             : "One of those words is not on the safe list",
       );
     }
-    if (args.sessionId.length < 8 || args.sessionId.length > 64) {
+    if (
+      args.sessionId.length < SESSION_MIN ||
+      args.sessionId.length > SESSION_MAX
+    ) {
       throw new Error("Invalid session");
     }
 

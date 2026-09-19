@@ -4,6 +4,20 @@ All notable changes to this project are documented here. Format follows Keep a C
 
 ## [Unreleased]
 
+### Changed (2026-09-19, terms and privacy cover accounts and moderation)
+
+- Both legal pages now describe the signed in layer before it ships, so the policy is in place the day accounts open. Terms add sections for accounts, public versus private asks, model answers routed through the Convex AI Gateway, account deletion, and a moderation and enforcement section: the admin may hide asks and answers, remove content, pause or block accounts, restore them, change limits, or shut the Service down, at any time and in particular when abuse is believed to be happening, with the reason and time recorded. Privacy splits what is collected into everyone versus account holders, names the model providers as recipients of the ask text and verdict, states plainly what the admin can see, and adds retention and self service export and delete. Both pages say features may arrive after the date and are covered when they do (19:13).
+
+### Added (2026-09-19, terms and privacy)
+
+- Two pages at `/terms` and `/privacy`, linked from a third line in the colophon under "Demo app not associated with TypeSafe AI" together with a link to the source. Both use the app's own type and tokens: the admin top row with a back link and the theme toggle, a compressed heading, a mono last updated line, and sections split by dotted rules. The copy describes this app as the code has it. No accounts, one anonymous id in the browser, the IP read for a one minute rate limit window and not stored on the ask, the ask text alone sent to TypeSafe, every live ask public with no self service delete. The terms name the maintainer, state that TypeSafe AI and Convex, Inc. are third party providers and not parties, and carry the liability cap, indemnity, waiver of legal action, and California law (18:58).
+
+### Security (2026-09-19, review and sign up window)
+
+- A full review of the function API, in source and by probing both deployments without a session. Every admin function refused the call, the wall projection carried no session ids, and the internal functions were unreachable. Two findings were closed (18:40).
+- Creating the admin account now needs `ADMIN_SIGNUP_OPEN=1` on the deployment and an empty `users` table. Before this, anyone who guessed the admin email could have registered it first and owned `/admin`. The sign in form shows the "Create the admin account" button only while the window is open and otherwise says how to open it. Once the one row exists nothing can add a second, even if `ADMIN_USERNAME` changes.
+- `messages.send` requires a session id of 32 to 64 characters, up from 8. The browser has always sent a 36 character UUID; the floor only shuts out a tampered client that picks a short id someone else could guess and read through `mine`. Stored ids shorter than that are regenerated on load.
+
 ### Added (2026-09-19, README)
 
 - A real README for the public repo. Opens with what Ask Jev is and the live URL, then how a message travels from the browser through the word gates, rate limits, the TypeSafe call, and back to every open tab. A stack table links each piece: TypeSafe docs, Convex, the sharded counter, rate limiter, Auth v2, and static hosting components, React, Vite, Phosphor, obscenity, the safe words list, Google Fonts, Cloudflare. Then features, local setup including the anonymous Convex mode, environment variables, scripts, layout, cost math, and credits. Admin is named as a feature only; no route or URL appears.

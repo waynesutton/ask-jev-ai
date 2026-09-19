@@ -11,15 +11,19 @@ import { Yours } from "./components/Yours";
 import { Wall } from "./components/Wall";
 import { HowItWorks } from "./components/HowItWorks";
 import { Admin } from "./components/Admin";
+import { Privacy, Terms } from "./components/Legal";
 import { ScrollArrows } from "./components/ScrollArrows";
 import { useIsAdmin } from "./hooks/useIsAdmin";
 
-// One client side route. Static hosting serves index.html for /admin, and
-// nothing on the public page links to it.
-const isAdminRoute = window.location.pathname.replace(/\/+$/, "") === "/admin";
+// Client side routes. Static hosting serves index.html for every path, so
+// the pathname decides what renders. /admin is never linked from the public
+// page; /terms and /privacy are linked from the colophon.
+const route = window.location.pathname.replace(/\/+$/, "");
 
 export default function App() {
-  if (isAdminRoute) return <Admin />;
+  if (route === "/admin") return <Admin />;
+  if (route === "/terms") return <Terms />;
+  if (route === "/privacy") return <Privacy />;
   return <Home />;
 }
 
@@ -115,13 +119,25 @@ function Home() {
       <Wall />
       <HowItWorks jev={jev} />
 
-      {/* Colophon. Two centered mono lines at the end of the page. */}
+      {/* Colophon. Three centered mono lines at the end of the page: the
+          builder credit, the disclaimer, then terms, privacy, and source. */}
       <div className="wrap colophon label">
         <a href="https://waynesutton.ai" target="_blank" rel="noreferrer">
           Demo app built by waynesutton.ai{" "}
           <ArrowUpRight size={11} aria-hidden="true" />
         </a>
         <span>Demo app not associated with TypeSafe AI</span>
+        <nav className="colophon__links" aria-label="Legal">
+          <a href="/terms">Terms</a>
+          <a href="/privacy">Privacy</a>
+          <a
+            href="https://github.com/waynesutton/ask-jev-ai"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Source <ArrowUpRight size={11} aria-hidden="true" />
+          </a>
+        </nav>
       </div>
 
       <ScrollArrows />

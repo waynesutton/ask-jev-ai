@@ -41,7 +41,12 @@ export function Admin() {
   if (isLoading || (isAuthenticated && me === undefined)) {
     body = <p className="label">Checking session</p>;
   } else if (!isAuthenticated) {
-    body = <SignIn configured={me?.configured ?? true} />;
+    body = (
+      <SignIn
+        configured={me?.configured ?? true}
+        signupOpen={me?.signupOpen ?? false}
+      />
+    );
   } else if (!me?.admin) {
     body = <NotAuthorized username={me?.username ?? null} />;
   } else {
@@ -62,8 +67,15 @@ export function Admin() {
 }
 
 // One form, two verbs. Sign in is the default. "Create the admin account"
-// flips to sign up, which the server refuses for any other username.
-function SignIn({ configured }: { configured: boolean }) {
+// flips to sign up, offered only while ADMIN_SIGNUP_OPEN=1 on the
+// deployment; the server refuses it otherwise and for any other username.
+function SignIn({
+  configured,
+  signupOpen,
+}: {
+  configured: boolean;
+  signupOpen: boolean;
+}) {
   const [mode, setMode] = useState<"in" | "up">("in");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -137,18 +149,26 @@ function SignIn({ configured }: { configured: boolean }) {
         <button className="pill pill--accent" type="submit" disabled={pending}>
           {pending ? "Working" : mode === "in" ? "Sign in" : "Create account"}
         </button>
-        <button
-          className="ghost"
-          type="button"
-          disabled={pending}
-          onClick={() => {
-            setError(null);
-            setMode(mode === "in" ? "up" : "in");
-          }}
-        >
-          {mode === "in" ? "Create the admin account" : "I have an account"}
-        </button>
+        {signupOpen && (
+          <button
+            className="ghost"
+            type="button"
+            disabled={pending}
+            onClick={() => {
+              setError(null);
+              setMode(mode === "in" ? "up" : "in");
+            }}
+          >
+            {mode === "in" ? "Create the admin account" : "I have an account"}
+          </button>
+        )}
       </div>
+      {!signupOpen && (
+        <p className="label">
+          Sign up is closed. To create the account, set ADMIN_SIGNUP_OPEN=1 on
+          the deployment, sign up, then remove it.
+        </p>
+      )}
     </form>
   );
 }
@@ -201,8 +221,9 @@ function signUpMessage(userError: SignUpError): string {
     case "PASSWORD_TOO_COMMON":
       return "That password is too common";
     case "OTHER_ERROR":
-      // createUser threw: the username is not ADMIN_USERNAME.
-      return "Sign up is closed. Only the admin email can create an account";
+      // createUser threw: window closed, an account exists, or the
+      // username is not ADMIN_USERNAME.
+      return "Sign up is closed. Only the admin email can create an account, once";
   }
 }
 

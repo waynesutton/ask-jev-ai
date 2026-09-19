@@ -15,6 +15,12 @@ export function adminUsername(): string | null {
   return raw ? normalizeUsername(raw) : null;
 }
 
+// Whether the sign up window is open. Set ADMIN_SIGNUP_OPEN=1 on the
+// deployment, create the account, then remove it. Closed by default.
+export function signupOpen(): boolean {
+  return process.env.ADMIN_SIGNUP_OPEN === "1";
+}
+
 // Signed in and matches ADMIN_USERNAME. Both must hold: a valid session
 // alone is not enough, the env var is the allowlist.
 export async function requireAdmin(

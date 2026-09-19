@@ -1,10 +1,12 @@
 import { ConvexError, v } from "convex/values";
 import { internalMutation } from "./_generated/server";
-import { adminUsername, normalizeUsername } from "./lib/admin";
+import { adminUsername, normalizeUsername, signupOpen } from "./lib/admin";
 
-// Called by Convex Auth the first time a username signs up. This is the
-// gate: anything other than ADMIN_USERNAME is refused, so the deployment's
-// environment decides who the one account belongs to.
+// Called by Convex Auth the first time a username signs up. Three gates,
+// all server side: the window must be open (ADMIN_SIGNUP_OPEN=1), no
+// account may exist yet, and the username must equal ADMIN_USERNAME. The
+// window keeps a stranger who guesses the admin email from registering it
+// first; the one row rule keeps the table at one account, ever.
 export const createUser = internalMutation({
   args: {
     provider: v.object({
@@ -15,6 +17,13 @@ export const createUser = internalMutation({
   },
   returns: v.id("users"),
   handler: async (ctx, args) => {
+    if (!signupOpen()) {
+      throw new ConvexError("Sign up is closed");
+    }
+    const existing = await ctx.db.query("users").first();
+    if (existing) {
+      throw new ConvexError("Sign up is closed");
+    }
     const username = normalizeUsername(args.provider.profile.username);
     const admin = adminUsername();
     if (!admin || username !== admin) {

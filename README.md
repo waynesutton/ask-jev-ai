@@ -48,6 +48,7 @@ The whole policy lives in one file: `convex/questions.ts`.
 - Server only held topics list read from an environment variable, never in the repo or the bundle
 - Admin features: sign in, filter and search every message in every status, hide or unhide from the dashboard or straight from the wall. Hidden text is masked server side so it never reaches the browser
 - Graceful no key mode. Without `TYPESAFE_API_KEY` posts publish on the allowlist alone and the UI says Jev is offline
+- Terms of service and privacy policy at `/terms` and `/privacy`, written for what this app stores and where it goes, linked from the colophon
 
 ## Run it locally
 
@@ -84,6 +85,7 @@ Set these on the Convex deployment with `npx convex env set NAME value`. None of
 | `TYPESAFE_API_KEY`              | Turns the judge on. Without it the wall runs on the allowlist alone.  |
 | `AUTH_PRIVATE_KEY`, `AUTH_JWKS` | RS256 pair for Convex Auth. Generate with `npx @convex-dev/auth`.     |
 | `ADMIN_USERNAME`                | The one username allowed to create an account and use admin features. |
+| `ADMIN_SIGNUP_OPEN`             | Set to `1` only while creating the admin account, then remove it.     |
 | `HELD_TERMS`                    | Optional. Comma separated topics stored as held without calling Jev.  |
 
 ## Scripts
