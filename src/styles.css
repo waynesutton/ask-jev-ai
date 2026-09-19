@@ -1,0 +1,1595 @@
+/* Ask Jev. One structure, two skins.
+
+   Light is Caldera: warm limestone canvas, one ember, compressed ultrabold
+   display type, DM Sans at medium, mono labels, 40px and pill radii, flat.
+   Surfaces layer by color, never by shadow or border.
+
+   Dark is the original ink and charcoal skin: Inter at one weight, hairlines,
+   8px cards, periwinkle for the primary action. No gradient wash anywhere.
+
+   Every difference between the two lives in the token blocks below. */
+
+:root {
+  /* Surfaces and text */
+  --ink: #070607;
+  --canvas: #e2e2df;
+  --paper: #f7f6f2;
+  --on-dark: #ffffff;
+  --hairline: rgba(7, 6, 7, 0.12);
+  --muted: rgba(7, 6, 7, 0.64);
+  --faint: rgba(7, 6, 7, 0.4);
+  --ash: rgba(7, 6, 7, 0.16);
+  --divider: 1.5px dotted rgba(7, 6, 7, 0.45);
+  --card-border: transparent;
+
+  /* The one accent, the one tag color, the one feature surface */
+  --accent: #fc5000;
+  --on-accent: #070607;
+  --tag: #f5f28e;
+  --on-tag: #070607;
+  --feature: #fc5000;
+  --on-feature: #070607;
+  --feature-track: rgba(7, 6, 7, 0.22);
+  --input-border: #070607;
+  --input-focus: #fc5000;
+
+  /* Mood dots on wall cards. Grays for the low end, sulfur and ember on top. */
+  --mood-low: rgba(7, 6, 7, 0.16);
+  --mood-flat: rgba(7, 6, 7, 0.16);
+  --mood-calm: rgba(7, 6, 7, 0.16);
+  --mood-happy: #f5f28e;
+  --mood-joyful: #fc5000;
+
+  /* Type */
+  --font-display: "Archivo", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "DM Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --weight-body: 500;
+  --weight-display: 900;
+  --display-variation: "wdth" 62;
+  --display-tracking: 0.01em;
+  --display-size: clamp(60px, 11vw, 150px);
+  --display-leading: 0.92;
+  --heading-lg-size: clamp(44px, 6vw, 80px);
+  --counter-size: min(96px, 25cqw);
+
+  --text-caption: 12px;
+  --text-body-sm: 14px;
+  --text-body: 16px;
+  --text-subheading: 20px;
+  --text-heading-sm: 24px;
+  --text-heading: 32px;
+
+  /* Space */
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-72: 72px;
+  --space-80: 80px;
+
+  /* Shape */
+  --radius-card: 40px;
+  --radius-card-sm: 24px;
+  --radius-small: 16px;
+  --radius-input: 100px;
+  --radius-pill: 800px;
+  --card-pad: 32px;
+  --input-pad: 24px;
+
+  --page-max: 1280px;
+  --page-x: clamp(16px, 4vw, 40px);
+}
+
+html[data-theme="dark"] {
+  --ink: #f4f4f4;
+  --canvas: #0a0b0c;
+  --paper: #141516;
+  --on-dark: #0a0b0c;
+  --hairline: rgba(244, 244, 244, 0.14);
+  --muted: rgba(244, 244, 244, 0.64);
+  --faint: rgba(244, 244, 244, 0.4);
+  --ash: #3a3b3d;
+  --divider: 1px solid rgba(244, 244, 244, 0.14);
+  --card-border: var(--hairline);
+
+  --accent: #abcbf9;
+  --on-accent: #0a0b0c;
+  --tag: #abcbf9;
+  --on-tag: #0a0b0c;
+  --feature: #141516;
+  --on-feature: #f4f4f4;
+  --feature-track: #3a3b3d;
+  --input-border: #3a3b3d;
+  --input-focus: #f4f4f4;
+
+  --mood-low: #3a3b3d;
+  --mood-flat: #abcbf9;
+  --mood-calm: #00543d;
+  --mood-happy: #fce88b;
+  --mood-joyful: #ffbbfc;
+
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --weight-body: 400;
+  --weight-display: 400;
+  --display-variation: normal;
+  --display-tracking: -0.01em;
+  --display-size: clamp(44px, 7.5vw, 104px);
+  --display-leading: 1;
+  --heading-lg-size: 48px;
+  --counter-size: min(84px, 16cqw);
+
+  --radius-card: 8px;
+  --radius-card-sm: 8px;
+  --radius-small: 6px;
+  --radius-input: 4px;
+  --radius-pill: 9999px;
+  --card-pad: 24px;
+  --input-pad: 16px;
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: var(--weight-body);
+  font-size: var(--text-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+  transition:
+    background 200ms ease,
+    color 200ms ease;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Headings and paragraphs take the body weight. Display classes set their own. */
+h1,
+h2,
+h3,
+p {
+  font-weight: inherit;
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* Type */
+
+.caption {
+  font-size: var(--text-caption);
+  line-height: 1.4;
+}
+
+.body-sm {
+  font-size: var(--text-body-sm);
+  line-height: 1.43;
+}
+
+.body {
+  font-size: var(--text-body);
+  line-height: 1.55;
+}
+
+.subheading {
+  font-size: var(--text-subheading);
+  line-height: 1.38;
+}
+
+.heading-sm {
+  font-size: var(--text-heading-sm);
+  line-height: 1.2;
+}
+
+/* Mono label. The small type that names a column, like a caption on a print. */
+.label {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: var(--text-caption);
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+.label--ink {
+  color: var(--ink);
+}
+
+/* The display face: compressed and heavy in light, Inter in dark. */
+.display,
+.heading-lg,
+.counter,
+.stat__value {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-variation-settings: var(--display-variation);
+  letter-spacing: var(--display-tracking);
+}
+
+.display {
+  font-size: var(--display-size);
+  line-height: var(--display-leading);
+}
+
+.heading-lg {
+  font-size: var(--heading-lg-size);
+  line-height: 0.96;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 0 var(--page-x);
+}
+
+.link {
+  border-bottom: 1px solid var(--hairline);
+  transition: border-color 160ms ease;
+}
+
+.link:hover {
+  border-bottom-color: var(--ink);
+}
+
+.link svg {
+  vertical-align: -1px;
+  margin-left: 2px;
+}
+
+/* Buttons. Pills only. Ink by default, the accent for the one primary action. */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  color: var(--on-dark);
+  padding: var(--space-12) var(--space-24);
+  font-size: var(--text-body);
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease,
+    background 160ms ease;
+}
+
+.pill:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.pill:disabled {
+  opacity: 0.4;
+}
+
+.pill--accent {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--ink);
+  padding: var(--space-8) var(--space-16);
+  font-size: var(--text-body-sm);
+  line-height: 1;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.ghost:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--on-dark);
+}
+
+.ghost--small {
+  padding: var(--space-4) var(--space-12);
+  font-size: var(--text-caption);
+}
+
+/* Theme toggle. A mono text button, nothing more. */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  transition: color 160ms ease;
+}
+
+.toggle:hover,
+.toggle:focus-visible {
+  color: var(--ink);
+}
+
+/* Cards. Paper on canvas. Light layers by color and has no border; dark keeps
+   its hairline. Never a shadow. */
+
+.card {
+  background: var(--paper);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card-sm);
+  padding: var(--card-pad);
+}
+
+/* Sections sit on the canvas and open with a dotted rule. */
+
+.section {
+  padding: var(--space-80) 0;
+  border-top: var(--divider);
+}
+
+.intro {
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto var(--space-48);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-16);
+}
+
+.intro .heading-lg {
+  margin-top: var(--space-4);
+}
+
+/* Wall search. Closed, it is one ghost circle holding the magnifier. Open,
+   the same shape stretches into a pill input with a clear button. Border and
+   radius follow the ask box so the two fields read as siblings. */
+.search {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  width: 44px;
+  max-width: 100%;
+  margin-top: var(--space-8);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius-input);
+  background: transparent;
+  overflow: hidden;
+  transition:
+    width 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 160ms ease;
+}
+
+.search--open {
+  width: 360px;
+  border-color: var(--hairline);
+}
+
+.search--open:focus-within {
+  border-color: var(--ink);
+}
+
+.search__icon,
+.search__clear {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 41px;
+  height: 41px;
+  color: var(--ink);
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.search:not(.search--open) .search__icon:hover,
+.search:not(.search--open) .search__icon:focus-visible {
+  background: var(--ink);
+  color: var(--on-dark);
+  outline: none;
+}
+
+.search--open .search__icon {
+  color: var(--faint);
+  cursor: text;
+}
+
+.search__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  background: transparent;
+  font-size: var(--text-body);
+  color: var(--ink);
+  caret-color: var(--ink);
+}
+
+.search__input:focus {
+  outline: none;
+}
+
+.search__input::placeholder {
+  color: var(--faint);
+}
+
+/* Drop the browser's own clear control; the X button covers it. */
+.search__input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search__clear {
+  color: var(--faint);
+}
+
+.search__clear:hover,
+.search__clear:focus-visible {
+  color: var(--ink);
+  outline: none;
+}
+
+/* Closed: the input and clear button are off the tab order and out of sight.
+   Width alone would leave them reachable by screen readers. */
+.search:not(.search--open) .search__input,
+.search:not(.search--open) .search__clear {
+  visibility: hidden;
+}
+
+@media (max-width: 640px) {
+  .search--open {
+    width: 100%;
+  }
+}
+
+/* Hero. Fills the first screen. A mono row on top, the display headline in the
+   middle, then three columns like a poster: copy, the ask, the count. */
+
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-32) 0 var(--space-64);
+}
+
+.hero__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+}
+
+.hero__top a {
+  color: var(--muted);
+  transition: color 160ms ease;
+}
+
+.hero__top a:hover,
+.hero__top a:focus-visible {
+  color: var(--ink);
+}
+
+.hero__top b {
+  font-weight: inherit;
+  color: var(--ink);
+}
+
+/* Emphasis inside a muted intro paragraph: bold and back to ink. */
+.intro .subheading b {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Left cluster: section anchors, dotted divider, then the Powered by credit. */
+.hero__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+}
+
+.hero__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  padding-right: var(--space-16);
+  border-right: var(--divider);
+}
+
+.hero__nav a {
+  color: var(--ink);
+}
+
+.hero__nav a:hover,
+.hero__nav a:focus-visible {
+  color: var(--accent);
+}
+
+/* Anchor targets land with breathing room instead of flush to the top edge. */
+#wall,
+#how {
+  scroll-margin-top: var(--space-32);
+}
+
+/* Colophon. Centered mono lines at the very end, no rule above it. */
+.colophon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-8);
+  padding: var(--space-48) var(--page-x) var(--space-64);
+}
+
+.colophon a {
+  color: var(--ink);
+}
+
+.colophon a:hover,
+.colophon a:focus-visible {
+  color: var(--muted);
+}
+
+/* Scroll arrows. Two ghost circles stacked on the right edge, paper filled so
+   they stay legible over cards. Each one fades and slides out when its
+   destination is already in view, and drops out of the tab order too. */
+.scroll-arrows {
+  position: fixed;
+  right: var(--space-24);
+  bottom: var(--space-24);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  pointer-events: none;
+}
+
+.scroll-arrows__btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    opacity 200ms ease,
+    transform 200ms ease;
+}
+
+.scroll-arrows__btn:hover,
+.scroll-arrows__btn:focus-visible {
+  background: var(--ink);
+  color: var(--on-dark);
+  outline: none;
+}
+
+.scroll-arrows__btn.is-hidden {
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .scroll-arrows {
+    right: var(--space-16);
+    bottom: var(--space-16);
+  }
+
+  .scroll-arrows__btn {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+.hero__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-48);
+  padding-top: var(--space-40);
+}
+
+.hero .display {
+  text-align: center;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 5fr) minmax(0, 4fr);
+  gap: var(--space-40);
+  align-items: start;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  min-width: 0;
+}
+
+.col--copy .body {
+  max-width: 34ch;
+}
+
+/* Crop marks at the four corners of the hero. */
+.mark {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+}
+
+.mark::before,
+.mark::after {
+  content: "";
+  position: absolute;
+  background: var(--ink);
+  opacity: 0.6;
+}
+
+.mark::before {
+  width: 14px;
+  height: 1px;
+}
+
+.mark::after {
+  width: 1px;
+  height: 14px;
+}
+
+.mark--tl {
+  top: var(--space-12);
+  left: calc(var(--page-x) - 10px);
+}
+.mark--tr {
+  top: var(--space-12);
+  right: calc(var(--page-x) - 10px);
+}
+.mark--bl {
+  bottom: var(--space-12);
+  left: calc(var(--page-x) - 10px);
+}
+.mark--br {
+  bottom: var(--space-12);
+  right: calc(var(--page-x) - 10px);
+}
+
+.mark--tl::before,
+.mark--tl::after {
+  top: 0;
+  left: 0;
+}
+.mark--tr::before,
+.mark--tr::after {
+  top: 0;
+  right: 0;
+}
+.mark--bl::before,
+.mark--bl::after {
+  bottom: 0;
+  left: 0;
+}
+.mark--br::before,
+.mark--br::after {
+  bottom: 0;
+  right: 0;
+}
+
+/* Composer */
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+/* Guide above the box. One muted sentence on what Jev can answer, then
+   three example asks as mono text buttons that fill the input. Sits between
+   the label and the field so the eye reads label, guide, box, in order. */
+.composer__guide {
+  margin: calc(-1 * var(--space-4)) 0 0;
+  color: var(--muted);
+  max-width: 44ch;
+}
+
+.composer__guide b {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.composer__try {
+  display: inline;
+}
+
+.composer__example {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--ink);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--faint);
+  transition: text-decoration-color 160ms ease;
+}
+
+.composer__example:hover,
+.composer__example:focus-visible {
+  text-decoration-color: var(--accent);
+  outline: none;
+}
+
+.composer__row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-12);
+}
+
+.composer__field {
+  flex: 1;
+  position: relative;
+}
+
+.composer__input {
+  width: 100%;
+  height: 56px;
+  padding: 0 var(--input-pad);
+  font-size: 18px;
+  line-height: 1;
+  border: 1.5px solid var(--input-border);
+  border-radius: var(--radius-input);
+  background: transparent;
+  caret-color: var(--ink);
+  transition: border-color 160ms ease;
+}
+
+.composer__input::placeholder {
+  color: var(--faint);
+}
+
+.composer__input:focus {
+  outline: none;
+}
+
+/* Driven by React focus events, so it holds even when the window itself is
+   not focused (embedded previews, background tabs). */
+.composer__field--focused .composer__input {
+  border-color: var(--input-focus);
+}
+
+/* While the box is empty the blink comes from CSS, not the native caret, so
+   it shows for every user on load. Once a character lands, the native caret
+   takes over and this one hides. */
+.composer__input:placeholder-shown {
+  caret-color: transparent;
+}
+
+.composer__field::after {
+  content: "";
+  position: absolute;
+  left: var(--input-pad);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.5px;
+  height: 22px;
+  background: var(--ink);
+  animation: blink 1s steps(2, start) infinite;
+  pointer-events: none;
+}
+
+.composer__field:has(.composer__input:not(:placeholder-shown))::after {
+  display: none;
+}
+
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  min-height: 24px;
+  align-items: center;
+}
+
+.chip {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  line-height: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+}
+
+.chip--bad {
+  color: var(--muted);
+  border-color: var(--hairline);
+  border-style: dashed;
+  text-decoration: line-through;
+}
+
+.chip--extra {
+  color: var(--muted);
+  border-color: var(--hairline);
+  border-style: dashed;
+}
+
+.composer__note {
+  min-height: 20px;
+}
+
+/* Yours */
+
+.yours {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding-top: var(--space-20);
+  border-top: var(--divider);
+}
+
+.yours__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.yours__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-12) var(--space-16);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-small);
+  background: var(--paper);
+}
+
+.yours__row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+}
+
+.yours__text {
+  font-size: var(--text-body);
+}
+
+.yours__item--blocked .yours__text,
+.yours__item--failed .yours__text {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  vertical-align: middle;
+}
+
+.dot--pulse {
+  animation: pulse 900ms ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* The count panel. Ember in light, charcoal in dark. The odometer, a thin
+   progress line, then four cost rows split by dotted rules. */
+
+.panel {
+  container-type: inline-size;
+  background: var(--feature);
+  color: var(--on-feature);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card);
+  padding: var(--card-pad);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.panel .muted,
+.panel .label {
+  color: color-mix(in srgb, currentColor 64%, transparent);
+}
+
+/* Nine glyphs sized from the panel's own width, so the number never
+   overflows whatever the column does. Compressed digits get more room. */
+.counter {
+  font-size: var(--counter-size);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.counter__dim {
+  opacity: 0.28;
+}
+
+.progress {
+  position: relative;
+  height: 2px;
+  background: var(--feature-track);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-top: var(--space-4);
+}
+
+.progress__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  min-width: 3px;
+  background: currentColor;
+  transition: width 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.count__stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-8) var(--space-24);
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-8);
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-16);
+  padding: var(--space-12) 0;
+  border-top: var(--divider);
+}
+
+.stat:last-child {
+  padding-bottom: 0;
+}
+
+.stat__value {
+  font-size: 28px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Wall */
+
+.wall__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-16);
+}
+
+.wallcard {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-24);
+  min-height: 180px;
+  animation: rise 400ms ease both;
+}
+
+/* Mood dot beside the mood word, so color is never the only signal. */
+.wallcard--low .dot--mood {
+  background: var(--mood-low);
+}
+.wallcard--flat .dot--mood {
+  background: var(--mood-flat);
+}
+.wallcard--calm .dot--mood {
+  background: var(--mood-calm);
+}
+.wallcard--happy .dot--mood {
+  background: var(--mood-happy);
+}
+.wallcard--joyful .dot--mood {
+  background: var(--mood-joyful);
+}
+
+.wallcard__mood {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.wallcard__text {
+  font-size: var(--text-heading-sm);
+  line-height: 1.3;
+}
+
+.wallcard__text::first-letter {
+  text-transform: uppercase;
+}
+
+.wallcard__text--long {
+  font-size: var(--text-body);
+  line-height: 1.5;
+}
+
+.wallcard__foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.wallcard__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8) var(--space-12);
+  font-family: var(--font-mono);
+}
+
+/* Jev's answer to the ask. A filled pill in the tag color. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  line-height: 1;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--tag);
+  color: var(--on-tag);
+}
+
+/* Jev answers toggle. A quiet text button, then a two column list. A held
+   row turns full ink so a blocked post explains itself. */
+.answers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.answers__toggle {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-family: var(--font-mono);
+  color: var(--muted);
+  transition: color 160ms ease;
+}
+
+.answers__toggle:hover {
+  color: var(--ink);
+}
+
+.answers__caret {
+  transition: transform 160ms ease;
+}
+
+.answers__caret--open {
+  transform: rotate(180deg);
+}
+
+.answers__list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--hairline);
+  font-family: var(--font-mono);
+}
+
+/* One row is a tiny horizontal bar chart: question and answer on the first
+   line, then a band from a shared left baseline with the percent outside the
+   bar in a fixed width column. Same column width in every row is what keeps
+   the tracks aligned across the card. */
+.answers__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: var(--space-12);
+  row-gap: 3px;
+  align-items: baseline;
+  color: var(--muted);
+}
+
+.answers__row dt,
+.answers__row dd {
+  margin: 0;
+}
+
+.answers__q {
+  white-space: nowrap;
+}
+
+.answers__a {
+  color: var(--ink);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.answers__bar {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 4ch;
+  column-gap: var(--space-8);
+  align-items: center;
+}
+
+.answers__track {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--hairline);
+  overflow: hidden;
+}
+
+.answers__fill {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: inherit;
+  background: var(--ink);
+  transform-origin: left center;
+  animation: bar-grow 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.answers__pct {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* A held post: the bar turns accent and reads as how sure Jev is it does
+   not belong. Text stays ink so 12px copy keeps its contrast. */
+.answers__row--hot .answers__pct {
+  color: var(--ink);
+}
+
+.answers__row--hot .answers__fill {
+  background: var(--accent);
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .answers__fill {
+    animation: none;
+  }
+}
+
+.wall__more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-40);
+}
+
+.empty {
+  text-align: center;
+  padding: var(--space-48) var(--space-24);
+  background: transparent;
+  border: 1.5px dashed var(--hairline);
+}
+
+/* How it works */
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-16);
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-24);
+}
+
+/* Linked fact cards. Arrow sits inline with the value, accent on hover. */
+.fact--link {
+  color: var(--ink);
+  transition: color 160ms ease;
+}
+
+.fact--link .body svg {
+  vertical-align: -2px;
+}
+
+.fact--link:hover .body,
+.fact--link:focus-visible .body {
+  color: var(--accent);
+}
+
+/* Hidden by admin. The text arrives masked; the blur softens the bullets
+   into a smudge so the card keeps its shape and nothing reads. The card
+   itself is untouched: same border, chips, chart, and cost. */
+.wallcard__text--hidden,
+.yours__text--hidden {
+  filter: blur(6px);
+  opacity: 0.55;
+  user-select: none;
+  pointer-events: none;
+}
+
+.wallcard__hidden {
+  font-family: var(--font-mono);
+  color: var(--ink);
+}
+
+/* Admin only. Sits at the end of the meta row, pushed to the right. */
+.wallcard__admin {
+  margin-left: auto;
+  font-family: var(--font-mono);
+}
+
+/* Small mono line under the stats in the count panel. */
+.panel__foot {
+  margin: 0;
+}
+
+/* Admin. Same canvas and paper as the public page, one column, no hero. */
+.admin {
+  min-height: 100dvh;
+  padding: var(--space-32) 0 var(--space-80);
+}
+
+.admin__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  transition: color 160ms ease;
+}
+
+.admin__back:hover,
+.admin__back:focus-visible {
+  color: var(--ink);
+}
+
+.admin__body {
+  margin-top: var(--space-48);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-32);
+}
+
+.auth {
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.auth .heading-lg {
+  margin-bottom: var(--space-8);
+}
+
+.auth__input {
+  font-size: 16px;
+  margin-top: calc(var(--space-8) * -1);
+}
+
+.auth__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+  margin-top: var(--space-8);
+}
+
+.admin__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-24);
+  flex-wrap: wrap;
+}
+
+.admin__counts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-16);
+}
+
+.admin__count {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-24);
+}
+
+/* Tools row. Filter left, search right; stacks on narrow screens. */
+.admin__tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+}
+
+/* Segmented filter. One hairline pill holding mono labels; the active one
+   fills with ink, the same move as the ghost button on hover. */
+.seg {
+  display: inline-flex;
+  padding: 3px;
+  border: 1.5px solid var(--hairline);
+  border-radius: var(--radius-pill);
+}
+
+.seg__btn {
+  padding: var(--space-8) var(--space-16);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  line-height: 1;
+  color: var(--muted);
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.seg__btn:hover,
+.seg__btn:focus-visible {
+  color: var(--ink);
+  outline: none;
+}
+
+.seg__btn--on,
+.seg__btn--on:hover {
+  background: var(--ink);
+  color: var(--on-dark);
+}
+
+/* Search pill that is always open. Reuses the wall search shell. */
+.search--static {
+  width: min(360px, 100%);
+  margin-top: 0;
+  transition: border-color 160ms ease;
+}
+
+.admin__list {
+  display: flex;
+  flex-direction: column;
+  border-top: var(--divider);
+}
+
+.admin__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-24);
+  padding: var(--space-16) 0;
+  border-bottom: var(--divider);
+}
+
+.admin__row--hidden .admin__text {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.admin__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+.admin__text {
+  font-size: var(--text-body);
+  line-height: 1.4;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.admin__text::first-letter {
+  text-transform: uppercase;
+}
+
+.admin__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8) var(--space-12);
+}
+
+.tag--blocked {
+  background: var(--ink);
+  color: var(--on-dark);
+}
+
+.tag--judging,
+.tag--failed {
+  background: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--muted);
+}
+
+.ghost--danger:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+/* Responsive */
+
+@media (max-width: 1100px) {
+  .hero__grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .col--copy {
+    grid-column: 1 / -1;
+  }
+  .col--copy .body {
+    max-width: 60ch;
+  }
+  .facts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .hero {
+    min-height: auto;
+    padding-bottom: var(--space-48);
+  }
+  .hero__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .composer__row {
+    flex-direction: column;
+  }
+  .composer__row .pill {
+    height: 52px;
+  }
+  .subheading {
+    font-size: 18px;
+  }
+  .card,
+  .panel {
+    padding: var(--space-24);
+  }
+  .section {
+    padding: var(--space-48) 0;
+  }
+  .facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .admin__row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-12);
+  }
+}
+
+@media (max-width: 520px) {
+  .facts,
+  .admin__counts {
+    grid-template-columns: 1fr;
+  }
+  .hero__top {
+    font-size: 11px;
+  }
+  /* Credit wraps under the nav here, so the divider has nothing to separate. */
+  .hero__nav {
+    border-right: 0;
+    padding-right: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wallcard,
+  .dot--pulse,
+  .composer__field::after {
+    animation: none;
+  }
+  .progress__fill,
+  .pill,
+  .ghost,
+  .scroll-arrows__btn,
+  .search,
+  body {
+    transition: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

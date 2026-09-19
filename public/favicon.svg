@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Ask Jev mark. The ember stat card at favicon scale: ember square with the
+       card's corner radius and a compressed ultrabold J in obsidian, the same
+       pairing as the Ask button. The J is a filled path, not text, so it needs
+       no font and stays crisp at 16px. Source for favicon.ico and
+       apple-touch-icon.png; see files.md to regenerate. -->
+  <rect width="64" height="64" rx="16" fill="#fc5000" />
+  <path
+    d="M35 13 H47 V40 C47 48 41 52 33 52 C25 52 19 48 19 40 V35 H31 V40 C31 41 32 42 33 42 C34 42 35 41 35 40 Z"
+    fill="#070607"
+  />
+</svg>

@@ -1,0 +1,197 @@
+<!doctype html>
+<!--
+  Source for public/og.png (1200 x 630). Same tokens and fonts as the light
+  skin. Regenerate: copy this file to public/og-card.html, open it at
+  http://localhost:5173/og-card.html, screenshot the 1200 x 630 frame, save as
+  public/og.png, then delete the copy. Steps are in files.md.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=DM+Mono:wght@400&family=DM+Sans:wght@500&display=swap"
+    />
+    <style>
+      :root {
+        --ink: #070607;
+        --canvas: #e2e2df;
+        --paper: #f7f6f2;
+        --ember: #fc5000;
+        --muted: rgba(7, 6, 7, 0.64);
+        --faint: rgba(7, 6, 7, 0.4);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--canvas);
+      }
+      body {
+        font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+        font-weight: 500;
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+      }
+      .card {
+        position: relative;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background: var(--canvas);
+        padding: 40px 64px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .mono {
+        font-family: "DM Mono", ui-monospace, monospace;
+        font-size: 16px;
+        letter-spacing: 0.02em;
+        color: var(--muted);
+      }
+      .mono b {
+        font-weight: 400;
+        color: var(--ink);
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+      }
+      h1 {
+        margin: 0;
+        font-family: "Archivo", sans-serif;
+        font-weight: 900;
+        font-variation-settings: "wdth" 62;
+        font-size: 148px;
+        line-height: 0.9;
+        white-space: nowrap;
+        letter-spacing: 0.01em;
+        text-align: center;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: end;
+      }
+      .ask {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .field {
+        display: flex;
+        gap: 12px;
+      }
+      .input {
+        flex: 1;
+        height: 64px;
+        border: 2px solid var(--ink);
+        border-radius: 100px;
+        padding: 0 26px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 22px;
+        color: var(--faint);
+      }
+      .caret {
+        width: 2px;
+        height: 26px;
+        background: var(--ink);
+        margin-right: 6px;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 30px;
+        border-radius: 800px;
+        background: var(--ember);
+        color: var(--ink);
+        font-size: 20px;
+      }
+      .panel {
+        background: var(--ember);
+        border-radius: 40px;
+        padding: 28px 32px 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .panel .mono {
+        color: rgba(7, 6, 7, 0.64);
+      }
+      .counter {
+        font-family: "Archivo", sans-serif;
+        font-weight: 900;
+        font-variation-settings: "wdth" 62;
+        font-size: 104px;
+        line-height: 1;
+        letter-spacing: 0.01em;
+        font-variant-numeric: tabular-nums;
+      }
+      .counter span {
+        opacity: 0.28;
+      }
+      .mark {
+        position: absolute;
+        width: 14px;
+        height: 14px;
+      }
+      .mark::before,
+      .mark::after {
+        content: "";
+        position: absolute;
+        background: var(--ink);
+        opacity: 0.6;
+      }
+      .mark::before {
+        width: 14px;
+        height: 1px;
+      }
+      .mark::after {
+        width: 1px;
+        height: 14px;
+      }
+      .tl { top: 18px; left: 40px; }
+      .tr { top: 18px; right: 40px; }
+      .bl { bottom: 18px; left: 40px; }
+      .br { bottom: 18px; right: 40px; }
+      .tl::before, .tl::after { top: 0; left: 0; }
+      .tr::before, .tr::after { top: 0; right: 0; }
+      .bl::before, .bl::after { bottom: 0; left: 0; }
+      .br::before, .br::after { bottom: 0; right: 0; }
+    </style>
+  </head>
+  <body>
+    <div class="card" id="card">
+      <span class="mark tl"></span><span class="mark tr"></span>
+      <span class="mark bl"></span><span class="mark br"></span>
+      <div class="row mono">
+        <span>Powered by <b>Convex</b> and <b>TypeSafe</b></span>
+        <span>Up to a million times</span>
+      </div>
+      <h1>Ask Jev anything.</h1>
+      <div class="grid">
+        <div class="ask">
+          <span class="mono">Ask Jev · 3 to 15 words</span>
+          <div class="field">
+            <div class="input"><span class="caret"></span>ask jev anything</div>
+            <div class="pill">Ask <span>&rarr;</span></div>
+          </div>
+          <span class="mono">Yes, no, or it depends. Plus mood, topic, and whether it fits the wall.</span>
+        </div>
+        <div class="panel">
+          <span class="mono">Jev asked, so far</span>
+          <div class="counter"><span>0,000,</span>008</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

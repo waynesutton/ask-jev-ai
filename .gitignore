@@ -1,0 +1,10 @@
+node_modules
+dist
+.convex
+.env.local
+.env
+.DS_Store
+*.log
+
+# Handoff notes that name deployments
+prds/setup-domain-task.md

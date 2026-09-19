@@ -1,0 +1,35 @@
+{
+  "name": "ask-jev",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:backend": "convex dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p convex/tsconfig.json",
+    "words:build": "node scripts/buildSafeWords.mjs",
+    "deploy": "npx @convex-dev/static-hosting deploy",
+    "deploy:smoke": "npx @convex-dev/static-hosting upload --build"
+  },
+  "dependencies": {
+    "@convex-dev/auth": "^2.0.0-alpha.2",
+    "@convex-dev/rate-limiter": "^0.4.0",
+    "@convex-dev/sharded-counter": "^0.2.1",
+    "@convex-dev/static-hosting": "^0.2.1",
+    "@phosphor-icons/react": "^2.1.10",
+    "convex": "^1.46.0",
+    "obscenity": "^0.4.6",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "typescript": "^5.9.0",
+    "vite": "^8.3.0"
+  }
+}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#e2e2df" />
+    <script>
+      // Apply the stored theme before first paint. Light is the default.
+      try {
+        document.documentElement.dataset.theme =
+          localStorage.getItem("ask-jev-theme") === "dark" ? "dark" : "light";
+      } catch (e) {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
+    <meta
+      name="description"
+      content="Ask Jev anything in three to fifteen words. Jev, TypeSafe's judgment model, does not write replies. It judges each ask in about 100 milliseconds: yes, no, or it depends, plus mood, topic, and whether it fits the wall. Convex stores every verdict in realtime. Up to a million times."
+    />
+    <title>Ask Jev, up to a million times</title>
+    <link rel="canonical" href="https://fastidious-oyster-877.convex.site/" />
+
+    <!-- Favicon. SVG first (crisp at any size), ICO for older browsers and
+         some link previews, PNG for iOS home screen. All from public/favicon.svg. -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Open Graph. Image URLs must be absolute for X, Slack, iMessage, LinkedIn. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Ask Jev" />
+    <meta
+      property="og:title"
+      content="Ask Jev anything. Up to a million times."
+    />
+    <meta
+      property="og:description"
+      content="Three to fifteen words. Jev, TypeSafe's judgment model, does not write replies. It judges each ask in about 100 milliseconds: yes, no, or it depends, plus mood, topic, and whether it fits the wall. Convex stores every verdict in realtime."
+    />
+    <meta
+      property="og:url"
+      content="https://fastidious-oyster-877.convex.site/"
+    />
+    <meta
+      property="og:image"
+      content="https://fastidious-oyster-877.convex.site/og.png"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Ask Jev anything. Heavy compressed headline on a warm limestone canvas. A pill input reading ask jev anything with an orange Ask button beside an orange panel showing the live count. Powered by Convex and TypeSafe."
+    />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- X. Large image card. -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Ask Jev anything. Up to a million times."
+    />
+    <meta
+      name="twitter:description"
+      content="Three to fifteen words. Jev, TypeSafe's judgment model, does not write replies. It judges each ask in about 100 milliseconds: yes, no, or it depends, plus mood, topic, and whether it fits the wall. Convex stores every verdict in realtime."
+    />
+    <meta
+      name="twitter:image"
+      content="https://fastidious-oyster-877.convex.site/og.png"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="Ask Jev anything. Heavy compressed headline on a warm limestone canvas. A pill input reading ask jev anything with an orange Ask button beside an orange panel showing the live count. Powered by Convex and TypeSafe."
+    />
+    <!-- Light: Archivo (compressed, heavy) for display, DM Sans medium for body,
+         DM Mono for labels. Dark keeps Inter. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=DM+Mono:wght@400&family=DM+Sans:wght@500&display=swap"
+    />
+    <link rel="preconnect" href="https://rsms.me/" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
