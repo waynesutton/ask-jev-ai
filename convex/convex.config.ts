@@ -4,8 +4,10 @@ import shardedCounter from "@convex-dev/sharded-counter/convex.config.js";
 import rateLimiter from "@convex-dev/rate-limiter/convex.config.js";
 import staticHosting from "@convex-dev/static-hosting/convex.config.js";
 import auth from "@convex-dev/auth/core/convex.config.js";
+import oauth from "@convex-dev/auth/providers/oauth/convex.config.js";
 import passwordProvider from "@convex-dev/auth/providers/password/convex.config.js";
 import username from "@convex-dev/auth/username/convex.config.js";
+import agent from "@convex-dev/agent/convex.config.js";
 
 // The static site owns "/" on the .convex.site domain. Any app HTTP routes
 // (there are none today) would live under "/api". Auth mounts at "/auth",
@@ -17,16 +19,26 @@ const app = defineApp({
     // `npx @convex-dev/auth` and stored on the deployment.
     AUTH_PRIVATE_KEY: v.string(),
     AUTH_JWKS: v.string(),
+    // Provider secrets stay on each deployment, never in VITE_ variables.
+    AUTH_GOOGLE_CLIENT_ID: v.string(),
+    AUTH_GOOGLE_CLIENT_SECRET: v.string(),
+    AUTH_GITHUB_CLIENT_ID: v.string(),
+    AUTH_GITHUB_CLIENT_SECRET: v.string(),
+    AUTH_ALLOWED_ORIGINS: v.optional(v.string()),
   },
 });
 
 // Counters that climb toward one million without write contention.
 app.use(shardedCounter);
 
-// Per IP and per session posting limits so nobody can flood the wall.
+// Per IP, per session, and per user posting limits so nobody can flood the wall.
 app.use(rateLimiter);
 
-// Convex Auth v2: sessions, plus username + password for the one admin.
+// Threads and streamed deltas for the model answers behind signed in asks.
+app.use(agent);
+
+// Convex Auth v2: sessions, plus username + password. Anyone can sign up;
+// the admin is the account whose email matches ADMIN_USERNAME.
 app.use(auth, {
   httpPrefix: "/auth",
   env: {
@@ -36,6 +48,24 @@ app.use(auth, {
 });
 app.use(passwordProvider);
 app.use(username);
+
+// Each provider owns its callback; these routes take precedence over "/".
+app.use(oauth, {
+  name: "oauthGoogle",
+  httpPrefix: "/oauth/google",
+  env: {
+    CLIENT_ID: app.env.AUTH_GOOGLE_CLIENT_ID,
+    CLIENT_SECRET: app.env.AUTH_GOOGLE_CLIENT_SECRET,
+  },
+});
+app.use(oauth, {
+  name: "oauthGithub",
+  httpPrefix: "/oauth/github",
+  env: {
+    CLIENT_ID: app.env.AUTH_GITHUB_CLIENT_ID,
+    CLIENT_SECRET: app.env.AUTH_GITHUB_CLIENT_SECRET,
+  },
+});
 
 // Serves the built Vite app straight from Convex storage.
 app.use(staticHosting, { httpPrefix: "/" });

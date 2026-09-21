@@ -62,9 +62,11 @@ export function roughDuration(ms: number): string {
   if (hours < 48) return `~${hours}h`;
   const days = Math.floor(hours / 24);
   if (days < 365) return `~${days}d`;
-  const years = Math.floor(days / 365);
-  const rest = days % 365;
-  return rest > 0 ? `~${years}y ${rest}d` : `~${years}y`;
+  // Past a year the day count is noise and it widened the panel row. One
+  // decimal under ten years, whole years after.
+  const years = days / 365;
+  if (years < 10) return `~${years.toFixed(1).replace(/\.0$/, "")}y`;
+  return `~${Math.round(years)}y`;
 }
 
 export function timeAgo(ms: number, now: number): string {

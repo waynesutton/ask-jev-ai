@@ -4,37 +4,37 @@ overview: 'Keep the public wall exactly as it works today (Jev on the TypeSafe k
 todos:
   - id: schema-auth
     content: "Schema: optional users profile fields, sequences, messages visibility/userId/thread/answer/route/judgeProvider fields and indexes; open sign up with userNumber and handle, ADMIN_SIGNUP_OPEN guard kept for the admin email only; requireUser helper; export changePassword"
-    status: pending
+    status: completed
   - id: jev-provider
     content: convex/lib/jev.ts provider switch (typesafe default on TYPESAFE_API_KEY, gateway via getServiceToken and JEV_GATEWAY_URL, fallback to typesafe on gateway errors); stats.gate reports the provider; add route Choice question and WHY copy; judge.record stores route and judgeProvider and schedules answer
-    status: pending
+    status: completed
   - id: agent-gateway
     content: Mount @convex-dev/agent with convexGateway; answer.run streams via saveStreamDeltas with per route model, usageHandler counters, retries; followUp and listMessages with ownership checks; answer rate limits
-    status: pending
+    status: completed
   - id: messages-profile-api
     content: messages.send signed in path (visibility, relaxed private parser, thread); wall/search on by_visibility_and_status; profile.ts (me, update, photo upload, byHandle, history, setVisibility, setArchived, remove, exportData, deleteAccount with admin guard); backfillVisibility and backfillUsers migrations
-    status: pending
+    status: completed
   - id: admin-role
     content: "Keep the existing admin account working: verify the row validates and signs in after the schema push; admin.ts rows gain email, handle, visibility, route, model, answerHidden; setAnswerHidden mutation; Admin.tsx form stays, create toggle becomes a /sign-up link, Messages | Users tab, Hide answer buttons on dashboard and wall cards; requireAdmin on every admin function"
-    status: pending
+    status: completed
   - id: admin-users
-    content: "userUsage and blockedEmails tables; users.status with reason and moderatedAt; requireUser blocks blocked, requireActiveUser blocks paused; admin.users, admin.userDetail, admin.setUserStatus (pause, block with hiddenByBlock and blockedEmails, restore, self guard); AdminUsers.tsx with totals, filter, search, actions, drawer; paused banner and blocked note on the client"
-    status: pending
+    content: userUsage and blockedEmails tables; users.status with reason and moderatedAt; requireUser blocks blocked, requireActiveUser blocks paused; admin.users, admin.userDetail, admin.setUserStatus (pause, block with hiddenByBlock and blockedEmails, restore, self guard); AdminUsers.tsx with totals, filter, search, actions, drawer; paused banner and blocked note on the client
+    status: completed
   - id: rate-limits
     content: "lib/rateLimits.ts: keep ip and post for anonymous, add userPost 20 per minute capacity 10 keyed by userId, answer and answerDaily; send picks the set by auth state; Composer rule note shows the lifted limit"
-    status: pending
+    status: completed
   - id: pricing-stats
     content: Per model price table and micro USD counters; stats.cost returns model spend and answers; CostTracker rows with tooltips
-    status: pending
+    status: completed
   - id: router-pages
     content: useRoute hook and Link; SignIn (with admin email window hint), Me (settings, password, history, archive, export, delete account), Profile (/u/:handle), AskPage (/a/:id with streaming thread); App top row sign in and avatar menu
-    status: pending
+    status: completed
   - id: composer-wall-ui
     content: Composer textarea pill, Wall | Private toggle, sign in hint, new guide copy; WallCard answer block with model and why line, author avatar; Yours from history; HowItWorks new paragraph, facts, live Jev provider; Tooltip component applied across the app; styles for both themes
-    status: pending
+    status: completed
   - id: docs-verify
     content: PRD prds/ask-anything-accounts.md with admin compatibility and the Switch Jev to the Convex AI Gateway prompt; files.md, changelog.md, README.md, task.md; typecheck, convex dev --once, admin sign in check, browser verification in both themes at 1280 and 375; docs sync per update-project-docs and print the commit message
-    status: pending
+    status: completed
 isProject: false
 ---
 

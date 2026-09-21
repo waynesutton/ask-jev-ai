@@ -6,5 +6,6 @@ dist
 .DS_Store
 *.log
 
-# Handoff notes that name deployments
+# Handoff notes that name deployments or walk through credential screens
 prds/setup-domain-task.md
+setup-off-Google-GitHub.md

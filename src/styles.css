@@ -48,7 +48,7 @@
   --weight-display: 900;
   --display-variation: "wdth" 62;
   --display-tracking: 0.01em;
-  --display-size: clamp(60px, 11vw, 150px);
+  --display-size: clamp(52px, 8.6vw, 118px);
   --display-leading: 0.92;
   --heading-lg-size: clamp(44px, 6vw, 80px);
   --counter-size: min(96px, 25cqw);
@@ -122,7 +122,7 @@ html[data-theme="dark"] {
   --weight-display: 400;
   --display-variation: normal;
   --display-tracking: -0.01em;
-  --display-size: clamp(44px, 7.5vw, 104px);
+  --display-size: clamp(40px, 6vw, 84px);
   --display-leading: 1;
   --heading-lg-size: 48px;
   --counter-size: min(84px, 16cqw);
@@ -386,6 +386,11 @@ button:disabled {
   border-top: var(--divider);
 }
 
+/* The wall follows the hero closely so its header clears the fold. */
+#wall.section {
+  padding-top: var(--space-48);
+}
+
 .intro {
   text-align: center;
   max-width: 760px;
@@ -504,12 +509,13 @@ button:disabled {
 /* Hero. Fills the first screen. A mono row on top, the display headline in the
    middle, then three columns like a poster: copy, the ask, the count. */
 
+/* No min-height. The hero ends where the count panel ends, so on a laptop
+   the wall header sits above the fold instead of a screen down. */
 .hero {
   position: relative;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: var(--space-32) 0 var(--space-64);
+  padding: var(--space-32) 0 var(--space-48);
 }
 
 .hero__top {
@@ -559,6 +565,12 @@ button:disabled {
 
 .hero__nav a {
   color: var(--ink);
+}
+
+/* A credit link and its arrow stay on one line; the credit wraps between
+   links, never inside one. */
+.hero__credit a {
+  white-space: nowrap;
 }
 
 .hero__nav a:hover,
@@ -672,24 +684,50 @@ button:disabled {
   }
 }
 
+/* Content sits at the top of the first screen rather than centered in it,
+   so the replies that land under the box stay above the fold. */
 .hero__body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: var(--space-48);
-  padding-top: var(--space-40);
+  justify-content: flex-start;
+  gap: var(--space-40);
+  padding-top: var(--space-32);
 }
 
 .hero .display {
-  text-align: center;
+  /* Shrink to the text so the "for real" line can hang off its right
+     edge, then center the block. */
+  display: block;
+  width: fit-content;
   max-width: 100%;
+  margin-inline: auto;
+  text-align: center;
   overflow-wrap: anywhere;
 }
 
+/* "for real": the small print under the promise, set flush right. Same
+   face, one seventh the size, no tracking games. Sits close enough to
+   read as part of the headline, not as a subtitle. */
+.display__tag {
+  display: block;
+  text-align: right;
+  font-size: 0.22em;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  margin-top: 0.22em;
+  padding-right: 0.1em;
+  color: var(--ink);
+}
+
+/* Lanes | the box | the count. The box takes the most room; the lanes are a
+   narrow column of short lines; the panel is as wide as its number needs. */
 .hero__grid {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 5fr) minmax(0, 4fr);
+  grid-template-columns: minmax(200px, 2.4fr) minmax(0, 6fr) minmax(
+      280px,
+      3.4fr
+    );
   gap: var(--space-40);
   align-items: start;
 }
@@ -701,8 +739,63 @@ button:disabled {
   min-width: 0;
 }
 
-.col--copy .body {
-  max-width: 34ch;
+/* The count panel, tighter than a wall card: less padding, less gap. */
+.hero .panel {
+  padding: var(--space-24);
+  gap: var(--space-8);
+}
+
+/* Lanes. Short mono heads, plain lines, dotted rules between lanes. Sits a
+   touch lower than the box so the first head aligns with the box label. */
+.lanes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.lanes__lane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding-bottom: var(--space-16);
+  border-bottom: var(--divider);
+}
+
+.lanes__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.lanes__list b {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.lanes__list a,
+.lanes .label a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--hairline);
+  transition: text-decoration-color 160ms ease;
+}
+
+.lanes__list a:hover,
+.lanes__list a:focus-visible,
+.lanes .label a:hover,
+.lanes .label a:focus-visible {
+  text-decoration-color: var(--accent);
+}
+
+.lanes__list a svg {
+  vertical-align: -1px;
 }
 
 /* Crop marks at the four corners of the hero. */
@@ -769,7 +862,10 @@ button:disabled {
   right: 0;
 }
 
-/* Composer */
+/* Composer. A label row, then one bordered box: the field on top, a bar
+   under it with the word count and the filled button. The box grows with
+   the text; the button keeps its height. Ink border at rest, the accent on
+   focus, no shadow. Card radius in light, 8px in dark, from the tokens. */
 
 .composer {
   display: flex;
@@ -777,62 +873,61 @@ button:disabled {
   gap: var(--space-12);
 }
 
-/* Guide above the box. One muted sentence on what Jev can answer, then
-   three example asks as mono text buttons that fill the input. Sits between
-   the label and the field so the eye reads label, guide, box, in order. */
-.composer__guide {
-  margin: calc(-1 * var(--space-4)) 0 0;
-  color: var(--muted);
-  max-width: 44ch;
+.composer__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-12);
+  flex-wrap: wrap;
+  min-height: 28px;
 }
 
-.composer__guide b {
-  font-weight: 500;
+.composer__headNote a {
   color: var(--ink);
-}
-
-.composer__try {
-  display: inline;
-}
-
-.composer__example {
-  font-family: var(--font-mono);
-  font-size: var(--text-caption);
-  color: var(--ink);
-  text-decoration: underline dotted;
+  text-decoration: underline;
   text-underline-offset: 3px;
-  text-decoration-color: var(--faint);
+  text-decoration-color: var(--hairline);
   transition: text-decoration-color 160ms ease;
 }
 
-.composer__example:hover,
-.composer__example:focus-visible {
+.composer__headNote a:hover,
+.composer__headNote a:focus-visible {
   text-decoration-color: var(--accent);
-  outline: none;
 }
 
-.composer__row {
+.composer__box {
   display: flex;
-  align-items: stretch;
-  gap: var(--space-12);
+  flex-direction: column;
+  border: 1.5px solid var(--input-border);
+  border-radius: var(--radius-card-sm);
+  background: var(--paper);
+  transition: border-color 160ms ease;
+}
+
+/* Driven by React focus events, so it holds even when the window itself is
+   not focused (embedded previews, background tabs). */
+.composer__box--focused {
+  border-color: var(--input-focus);
 }
 
 .composer__field {
-  flex: 1;
   position: relative;
 }
 
 .composer__input {
+  display: block;
   width: 100%;
-  height: 56px;
-  padding: 0 var(--input-pad);
+  min-height: 60px;
+  padding: var(--space-16) var(--input-pad) var(--space-8);
   font-size: 18px;
-  line-height: 1;
-  border: 1.5px solid var(--input-border);
-  border-radius: var(--radius-input);
+  line-height: 1.4;
+  font-family: inherit;
+  border: 0;
   background: transparent;
+  color: var(--ink);
   caret-color: var(--ink);
-  transition: border-color 160ms ease;
+  resize: none;
+  overflow-y: hidden;
 }
 
 .composer__input::placeholder {
@@ -843,10 +938,8 @@ button:disabled {
   outline: none;
 }
 
-/* Driven by React focus events, so it holds even when the window itself is
-   not focused (embedded previews, background tabs). */
-.composer__field--focused .composer__input {
-  border-color: var(--input-focus);
+.composer__input:disabled {
+  opacity: 0.5;
 }
 
 /* While the box is empty the blink comes from CSS, not the native caret, so
@@ -860,16 +953,16 @@ button:disabled {
   content: "";
   position: absolute;
   left: var(--input-pad);
-  top: 50%;
-  transform: translateY(-50%);
+  top: calc(var(--space-16) + 1px);
   width: 1.5px;
-  height: 22px;
+  height: 24px;
   background: var(--ink);
   animation: blink 1s steps(2, start) infinite;
   pointer-events: none;
 }
 
-.composer__field:has(.composer__input:not(:placeholder-shown))::after {
+.composer__field:has(.composer__input:not(:placeholder-shown))::after,
+.composer__field:has(.composer__input:disabled)::after {
   display: none;
 }
 
@@ -877,6 +970,27 @@ button:disabled {
   to {
     visibility: hidden;
   }
+}
+
+.composer__bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-12);
+  padding: 0 var(--space-12) var(--space-12) var(--input-pad);
+}
+
+.composer__count {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* The one filled button. Fixed height so it never stretches with the
+   field, and a little tighter than the pill elsewhere. */
+.composer__send {
+  height: 40px;
+  padding: 0 var(--space-20);
+  flex-shrink: 0;
 }
 
 .chips {
@@ -1264,6 +1378,104 @@ button:disabled {
   background: var(--accent);
 }
 
+/* The runner up sits a step in from the verdict it explains, with a muted
+   bar so the eye reads it as the second number, not a second verdict. */
+.answers__row--sub {
+  padding-left: var(--space-12);
+}
+
+.answers__row--sub .answers__a {
+  color: var(--muted);
+}
+
+.answers__row--sub .answers__fill {
+  background: var(--muted);
+}
+
+/* The percent on the verdict chip. Same pill, slightly quieter digits. */
+.tag__pct {
+  margin-left: 0.6ch;
+  opacity: 0.78;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Quiet tags: "close call", "close to the line", "leaning yes". No fill,
+   a hairline, muted ink. They qualify the chip beside them. */
+.tag--quiet {
+  background: transparent;
+  color: var(--muted);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+
+/* "Was Jev right?" Two thumbs and their counts, on the card foot line. */
+.vote {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-family: var(--font-mono);
+}
+
+.vote__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 24px;
+  padding: 4px 8px;
+  border-radius: var(--radius-pill);
+  color: var(--muted);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.vote__btn:hover:not(:disabled),
+.vote__btn:focus-visible {
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+.vote__btn--on,
+.vote__btn--on:hover:not(:disabled) {
+  color: var(--on-tag);
+  background: var(--tag);
+  box-shadow: none;
+}
+
+.vote__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.vote__n {
+  font-variant-numeric: tabular-nums;
+}
+
+.vote__note {
+  margin-left: var(--space-4);
+}
+
+/* Copy link. A text button in the meta row that swaps to "Copied". */
+.copylink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  color: var(--muted);
+  transition: color 160ms ease;
+}
+
+.copylink:hover,
+.copylink:focus-visible {
+  color: var(--ink);
+}
+
+.copylink--done {
+  color: var(--ink);
+}
+
 @keyframes bar-grow {
   from {
     transform: scaleX(0);
@@ -1347,6 +1559,46 @@ button:disabled {
 /* Small mono line under the stats in the count panel. */
 .panel__foot {
   margin: 0;
+}
+
+/* The fold under the three headline rows. A mono row with a caret, ruled
+   like a stat, so it reads as one more line in the column until pressed. */
+.panel__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  margin-top: var(--space-12);
+  padding: var(--space-12) 0 0;
+  border-top: var(--divider);
+  text-align: left;
+  cursor: pointer;
+  transition: color 160ms ease;
+}
+
+.panel .panel__toggle:hover,
+.panel .panel__toggle:focus-visible {
+  color: inherit;
+}
+
+.panel__more {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.panel__more .stats {
+  margin-top: 0;
+}
+
+.panel__more .stat:first-child {
+  border-top: 0;
+  padding-top: var(--space-8);
+}
+
+/* Labels in the stat rows stay on one line; the value shrinks first. */
+.stat .label {
+  white-space: nowrap;
 }
 
 /* Admin. Same canvas and paper as the public page, one column, no hero. */
@@ -1457,6 +1709,128 @@ button:disabled {
   color: var(--ink);
 }
 
+/* /docs. The legal shell plus a sticky contents rail and tables. */
+.docs__layout {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 720px);
+  gap: var(--space-48);
+  align-items: start;
+  justify-content: center;
+}
+
+.docs__body {
+  margin-top: var(--space-48);
+}
+
+.docs__toc {
+  position: sticky;
+  top: var(--space-32);
+  margin-top: var(--space-48);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding-top: var(--space-4);
+}
+
+.docs__toc p {
+  margin: 0 0 var(--space-4);
+}
+
+.docs__toc a {
+  color: var(--muted);
+  transition: color 160ms ease;
+}
+
+.docs__toc a:hover,
+.docs__toc a:focus-visible {
+  color: var(--ink);
+}
+
+.docs .legal__section {
+  scroll-margin-top: var(--space-24);
+}
+
+.docs__steps {
+  margin: 0;
+  padding-left: 1.4em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.docs__steps li::marker {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--muted);
+}
+
+.docs__tableWrap {
+  overflow-x: auto;
+  border-top: var(--divider);
+  border-bottom: var(--divider);
+}
+
+.docs__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.docs__table th {
+  text-align: left;
+  padding: var(--space-8) var(--space-12) var(--space-8) 0;
+  color: var(--muted);
+  font-weight: inherit;
+  white-space: nowrap;
+}
+
+.docs__table td {
+  padding: var(--space-8) var(--space-12) var(--space-8) 0;
+  vertical-align: top;
+  border-top: 1px solid var(--hairline);
+}
+
+.docs__table td:last-child,
+.docs__table th:last-child {
+  padding-right: 0;
+}
+
+.docs__table code {
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .docs__layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .docs__toc {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-8) var(--space-16);
+    margin-top: var(--space-32);
+  }
+
+  .docs__toc p {
+    width: 100%;
+  }
+
+  .docs__body {
+    margin-top: var(--space-32);
+  }
+}
+
+/* Phone: headers and model ids wrap so every docs table fits the column
+   instead of scrolling sideways inside it. */
+@media (max-width: 640px) {
+  .docs__table th,
+  .docs__table code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
 .auth {
   max-width: 520px;
   margin: 0 auto;
@@ -1469,9 +1843,28 @@ button:disabled {
   margin-bottom: var(--space-8);
 }
 
+/* Form fields outside the composer (sign in, sign up, /me). The composer
+   draws its border on the box around the textarea, so these carry their
+   own: the same 1.5px rule and radius as the thread textarea, inset so a
+   blank field still reads as a place to type. */
 .auth__input {
+  min-height: 48px;
+  padding: 12px var(--input-pad);
   font-size: 16px;
   margin-top: calc(var(--space-8) * -1);
+  border: 1.5px solid var(--input-border);
+  border-radius: var(--radius-small);
+  transition: border-color 160ms ease;
+}
+
+.auth__input:focus {
+  border-color: var(--input-focus);
+}
+
+/* The composer hides the native caret while empty and blinks its own.
+   These fields have no drawn caret, so keep the native one. */
+.auth__input:placeholder-shown {
+  caret-color: var(--ink);
 }
 
 .auth__actions {
@@ -1492,7 +1885,7 @@ button:disabled {
 
 .admin__counts {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: var(--space-16);
 }
 
@@ -1617,15 +2010,27 @@ button:disabled {
 
 /* Responsive */
 
+/* Two columns: the box and the panel on top, the lanes underneath spread
+   across both, each lane its own column. */
 @media (max-width: 1100px) {
   .hero__grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr);
   }
   .col--copy {
     grid-column: 1 / -1;
+    order: 3;
   }
-  .col--copy .body {
-    max-width: 60ch;
+  .lanes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-24) var(--space-40);
+  }
+  .lanes__lane {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+  .lanes > .label:last-child {
+    grid-column: 1 / -1;
   }
   .facts {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1633,18 +2038,23 @@ button:disabled {
 }
 
 @media (max-width: 800px) {
-  .hero {
-    min-height: auto;
-    padding-bottom: var(--space-48);
-  }
   .hero__grid {
     grid-template-columns: minmax(0, 1fr);
   }
-  .composer__row {
-    flex-direction: column;
+  /* One column: the box first, then the lanes, then the count. */
+  .col--ask {
+    order: -1;
   }
-  .composer__row .pill {
-    height: 52px;
+  .col--copy {
+    order: 0;
+  }
+  .lanes {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-16);
+  }
+  .lanes__lane {
+    padding-bottom: var(--space-16);
+    border-bottom: var(--divider);
   }
   .subheading {
     font-size: 18px;
@@ -1664,6 +2074,27 @@ button:disabled {
     align-items: flex-start;
     gap: var(--space-12);
   }
+  /* Top row on a phone: nav left and account plus theme right on one line,
+     the Powered by credit on its own line under them. `display: contents`
+     lifts nav and credit out of the left cluster so the row can order them. */
+  .hero__left {
+    display: contents;
+  }
+  .hero__nav {
+    border-right: 0;
+    padding-right: 0;
+  }
+  .hero__right {
+    margin-left: auto;
+  }
+  .hero__credit {
+    order: 3;
+    flex-basis: 100%;
+  }
+  /* The soft keyboard has no send key, so the Enter hint is noise here. */
+  .composer__keyHint {
+    display: none;
+  }
 }
 
 @media (max-width: 520px) {
@@ -1674,10 +2105,64 @@ button:disabled {
   .hero__top {
     font-size: 11px;
   }
-  /* Credit wraps under the nav here, so the divider has nothing to separate. */
-  .hero__nav {
-    border-right: 0;
-    padding-right: 0;
+}
+
+/* Touch screens: the mono text links and toggles are 13 to 17px tall on
+   their own. Padding grows the hit area toward 40px and the matching
+   negative margin keeps the layout exactly where it was. */
+@media (pointer: coarse) {
+  .hero__nav a,
+  .hero__credit a,
+  .toggle,
+  .admin__back,
+  .docs__toc a,
+  .me__nav a,
+  .answers__toggle,
+  .answer__more,
+  .wallcard__time,
+  .composer__headNote a,
+  .composer__count a,
+  .lanes__list a,
+  .colophon a,
+  .legal__nav a {
+    padding-block: 12px;
+    margin-block: -12px;
+  }
+  .hero__nav a,
+  .hero__credit a,
+  .admin__back,
+  .docs__toc a,
+  .me__nav a,
+  .answer__more,
+  .wallcard__time,
+  .composer__headNote a,
+  .composer__count a,
+  .lanes__list a,
+  .colophon a,
+  .legal__nav a {
+    display: inline-block;
+  }
+  /* Small ghost pills and the ? hints get a taller box outright. */
+  .ghost--small {
+    padding-block: var(--space-8);
+  }
+  /* Thumbs and the copy link reach a 44px tap box on touch screens. */
+  .vote__btn,
+  .copylink {
+    min-height: 44px;
+    padding-inline: var(--space-12);
+  }
+  .panel__toggle {
+    padding-bottom: var(--space-12);
+    margin-bottom: calc(-1 * var(--space-12));
+  }
+  .hint {
+    position: relative;
+  }
+  .hint::before {
+    content: "";
+    position: absolute;
+    inset: -12px;
   }
 }
 
@@ -1697,5 +2182,1112 @@ button:disabled {
   }
   html {
     scroll-behavior: auto;
+  }
+}
+
+/* Accounts, answers, profiles. Everything below reuses the tokens above so
+   both skins pick it up with no extra rules. */
+
+/* Tooltips. Mono label on ink, small arrow, fades in. */
+.tip {
+  z-index: 50;
+  max-width: 260px;
+  padding: var(--space-8) var(--space-12);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--on-dark);
+  background: var(--ink);
+  border-radius: var(--radius-small);
+  animation: tipIn 140ms ease both;
+}
+
+.tip__arrow {
+  fill: var(--ink);
+}
+
+@keyframes tipIn {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* A small question mark that carries a tip. */
+.hint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1;
+  color: var(--muted);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
+  vertical-align: middle;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.hint:hover,
+.hint:focus-visible {
+  color: var(--ink);
+  border-color: var(--ink);
+  outline: none;
+}
+
+/* Top row account slot: sign up and sign in, or the avatar menu. */
+.hero__right {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-16);
+}
+
+.account {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 28px;
+  min-height: 28px;
+}
+
+.hero__top a.account__signin,
+.hero__top a.account__signup:hover,
+.hero__top a.account__signup:focus-visible {
+  color: var(--on-dark);
+}
+
+.hero__top a.account__signup:focus-visible { background: var(--ink); }
+
+.pill--small { padding: var(--space-8) var(--space-16); font-size: var(--text-body-sm); }
+.account__auth { display: inline-flex; align-items: center; gap: var(--space-8); }
+.auth__providers { display: grid; gap: 10px; }
+.auth__provider { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 46px; width: 100%; }
+.auth__divider { display: flex; align-items: center; gap: 12px; }
+.auth__divider::before, .auth__divider::after { content: ""; flex: 1; height: 1px; background: currentColor; opacity: .2; }
+.oauth-error { margin: 16px auto; padding: 16px; max-width: 520px; border: 1px solid currentColor; }
+@media (max-width: 520px) {
+  .account__auth { gap: 8px; }
+  .account__signin { padding: 8px 12px; }
+  .account__signup { padding: 4px 8px; }
+}
+
+.account__btn {
+  display: inline-flex;
+  border-radius: var(--radius-pill);
+  transition: outline-color 160ms ease;
+}
+
+.account__btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.account__menu {
+  position: absolute;
+  top: calc(100% + var(--space-8));
+  right: 0;
+  z-index: 40;
+  min-width: 220px;
+  padding: var(--space-12);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: var(--radius-small);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.account__who {
+  padding: var(--space-8) var(--space-12) var(--space-12);
+  border-bottom: var(--divider);
+  margin-bottom: var(--space-4);
+}
+
+.account__menu a,
+.account__menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--space-8) var(--space-12);
+  font-family: var(--font-body);
+  font-size: var(--text-body-sm);
+  color: var(--ink);
+  border-radius: var(--radius-small);
+  transition: background 160ms ease;
+}
+
+.account__menu a:hover,
+.account__menu a:focus-visible,
+.account__menu button:hover,
+.account__menu button:focus-visible {
+  background: var(--canvas);
+  outline: none;
+}
+
+/* Avatars. Round, ink on the letter fallback, cover fit on photos. */
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border-radius: var(--radius-pill);
+  object-fit: cover;
+  background: var(--ink);
+  color: var(--on-dark);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+/* Notices: paused account, and the like. Paper card, one label, one line. */
+.notice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-20) var(--space-24);
+  margin-top: var(--space-24);
+  border-radius: var(--radius-card-sm);
+}
+
+.notice a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Composer growth. Label and the Wall | Private toggle share a row. The
+   textarea keeps the pill shape at one line and squares off a little as it
+   grows. */
+.composer__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-12);
+  flex-wrap: wrap;
+}
+
+.seg--small {
+  padding: 2px;
+}
+
+.seg--small .seg__btn {
+  padding: 6px var(--space-12);
+}
+
+/* Standalone textarea for the thread form on the ask page. Same face as the
+   hero box, with its own border since it has no box around it. */
+.composer__textarea {
+  min-height: 84px;
+  padding: 15px var(--input-pad);
+  border: 1.5px solid var(--input-border);
+  border-radius: var(--radius-card-sm);
+  transition: border-color 160ms ease;
+}
+
+.composer__textarea:focus {
+  border-color: var(--input-focus);
+}
+
+.composer__note a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--hairline);
+}
+
+.composer__note a:hover,
+.composer__note a:focus-visible {
+  text-decoration-color: var(--ink);
+}
+
+/* The model's answer under an ask. A dotted rule above, mono head with the
+   model name and the reason, then the text. Compact on cards. */
+.answer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding-top: var(--space-12);
+  border-top: var(--divider);
+}
+
+.answer__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8) var(--space-12);
+}
+
+.answer__model {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink);
+}
+
+.answer__why {
+  color: var(--muted);
+}
+
+.answer__text {
+  margin: 0;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.answer--compact .answer__text {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.answer__more {
+  color: var(--ink);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--faint);
+}
+
+.answer__more:hover,
+.answer__more:focus-visible {
+  text-decoration-color: var(--accent);
+}
+
+.answer--hidden {
+  color: var(--muted);
+}
+
+/* Wall cards with an author line and an answer. */
+.wallcard__author {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-family: var(--font-mono);
+  margin-bottom: calc(-1 * var(--space-12));
+}
+
+.wallcard__author a {
+  color: var(--ink);
+}
+
+.wallcard__time {
+  color: inherit;
+}
+
+.wallcard__time:hover,
+.wallcard__time:focus-visible {
+  color: var(--ink);
+}
+
+.wallcard--answered .wallcard__text {
+  font-size: var(--text-body);
+  line-height: 1.5;
+}
+
+/* Signed in asks can run to sixty words. Past two dozen the card drops
+   one more size so the answer under it still gets room. */
+.wallcard--xl .wallcard__text {
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+}
+
+/* Under a visitor's own card when Jev read the ask as open: the one place
+   the app asks for a sign in with a reason it can point at. */
+.yours__nudge {
+  margin: 0;
+  padding: var(--space-8) var(--space-12);
+  border-left: 2px solid var(--accent);
+  color: var(--ink);
+}
+
+/* Pages that share the admin shell: /me, /u, /a. */
+.page .admin__body {
+  gap: var(--space-40);
+}
+
+.admin__headActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  flex-wrap: wrap;
+}
+
+.admin__tabs {
+  align-self: flex-start;
+}
+
+.admin__rowActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  flex: none;
+}
+
+.admin__answer {
+  margin: 0;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.admin__answer--hidden {
+  text-decoration: line-through;
+}
+
+.admin__text a {
+  color: var(--ink);
+}
+
+.admin__text a:hover,
+.admin__text a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.admin__meta a {
+  color: var(--ink);
+}
+
+.admin__userBtn {
+  font: inherit;
+  color: var(--ink);
+  text-align: left;
+}
+
+.admin__userBtn:hover,
+.admin__userBtn:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  outline: none;
+}
+
+.admin__row--user .tag {
+  margin-left: var(--space-8);
+}
+
+.admin__drawer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  margin-top: var(--space-8);
+  padding: var(--space-16);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-small);
+}
+
+.admin__verbs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.admin__verbs .auth__input {
+  margin-top: 0;
+}
+
+.admin__recent {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.admin__recent a {
+  color: var(--ink);
+}
+
+.tag--pending {
+  background: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--muted);
+}
+
+/* /me sections. Heading row with the filter, then the same list rows the
+   admin uses. */
+/* Anchor row under the /me heading. Same mono links as the hero nav, ruled
+   above and below so it reads as the page's own contents line. Sections
+   land with room above so the rule is not flush to the top edge. */
+.me__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8) var(--space-16);
+  padding: var(--space-12) 0;
+  border-top: var(--divider);
+  /* Pull the first section's rule up so the row sits between two rules
+     16px apart instead of the body's 32px gap plus section padding. */
+  margin-bottom: calc(-1 * var(--space-16));
+}
+
+.me__nav a {
+  color: var(--muted);
+  transition: color 160ms ease;
+}
+
+.me__nav a:hover,
+.me__nav a:focus-visible {
+  color: var(--ink);
+}
+
+.me__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding-top: var(--space-24);
+  border-top: var(--divider);
+  scroll-margin-top: var(--space-24);
+}
+
+.me__sectionHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+}
+
+.me__sectionHead .subheading {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.me__grid {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: var(--space-16);
+  align-items: start;
+}
+
+.me__grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.me__form {
+  max-width: none;
+  margin: 0;
+}
+
+.me__grid .auth {
+  max-width: none;
+  margin: 0;
+}
+
+.me__links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-12);
+}
+
+.me__links > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.me__photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-16);
+  padding: var(--space-24);
+}
+
+.me__dangerLabel {
+  margin-top: var(--space-16);
+  padding-top: var(--space-16);
+  border-top: var(--divider);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  cursor: pointer;
+}
+
+.check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+/* askjev.ai/:handle. A reading width column: header across the top, a
+   mono rail on the left, the usage blocks on the right. The rail stacks
+   above on narrow screens. */
+.pf {
+  --pf-rail: 180px;
+  display: grid;
+  grid-template-columns: var(--pf-rail) minmax(0, 1fr);
+  grid-template-areas:
+    "head head"
+    "rail main";
+  gap: var(--space-32) var(--space-40);
+  max-width: 880px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.pf__head {
+  grid-area: head;
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  padding-left: calc(var(--pf-rail) + var(--space-40));
+}
+
+.pf__who {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.pf__who .heading-sm {
+  margin: 0;
+}
+
+.pf__handle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  flex-wrap: wrap;
+}
+
+.pf__vis {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+  background: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--muted);
+}
+
+button.pf__vis {
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+button.pf__vis:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--on-dark);
+}
+
+.pf__vis--public {
+  background: var(--tag);
+  border-color: transparent;
+  color: var(--on-tag);
+}
+
+.pf__actions {
+  margin-left: auto;
+  display: flex;
+  gap: var(--space-8);
+  flex-shrink: 0;
+}
+
+.pf__rail {
+  grid-area: rail;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  color: var(--muted);
+  padding-top: var(--space-4);
+}
+
+.pf__rail a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink);
+  transition: color 160ms ease;
+}
+
+.pf__rail a:hover,
+.pf__rail a:focus-visible {
+  color: var(--accent);
+}
+
+.pf__bio {
+  color: var(--ink);
+  margin-top: var(--space-8);
+}
+
+.pf__main {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-40);
+  min-width: 0;
+}
+
+.pf__block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.pf__big {
+  margin: 0;
+}
+
+/* Four numbers in a row. */
+.pf__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-16);
+}
+
+.pf__stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.pf__stat .heading-sm {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A year of dots. Month letters over the columns, M W F down the side. */
+.pf__heat {
+  --dot: 9px;
+  --dotgap: 3px;
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  gap: 6px 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.pf__heatMonths {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: repeat(53, var(--dot));
+  gap: var(--dotgap);
+  height: 14px;
+  font-size: 10px;
+}
+
+.pf__heatDays {
+  grid-column: 1;
+  grid-row: 2;
+  display: grid;
+  grid-template-rows: repeat(7, var(--dot));
+  gap: var(--dotgap);
+  font-size: 10px;
+  line-height: var(--dot);
+}
+
+.pf__heatGrid {
+  grid-column: 2;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: repeat(53, var(--dot));
+  grid-template-rows: repeat(7, var(--dot));
+  gap: var(--dotgap);
+}
+
+.pf__dot {
+  width: var(--dot);
+  height: var(--dot);
+  border-radius: 50%;
+  background: var(--ash);
+}
+
+/* Phone: the whole year fits the column, 53 columns at 6px each. */
+@media (max-width: 640px) {
+  .pf__heat {
+    --dot: 5px;
+    --dotgap: 1px;
+  }
+}
+
+.pf__dot--future {
+  background: transparent;
+}
+
+.pf__dot--1 {
+  background: color-mix(in srgb, var(--accent) 35%, var(--paper));
+}
+.pf__dot--2 {
+  background: color-mix(in srgb, var(--accent) 60%, var(--paper));
+}
+.pf__dot--3 {
+  background: color-mix(in srgb, var(--accent) 85%, var(--paper));
+}
+.pf__dot--4 {
+  background: var(--accent);
+}
+
+/* Jev's verdicts as one split bar. */
+.pf__split {
+  display: flex;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  gap: 2px;
+}
+
+.pf__seg {
+  display: block;
+  min-width: 3px;
+}
+
+.pf__seg--yes {
+  background: var(--accent);
+}
+.pf__seg--no {
+  background: var(--ink);
+}
+.pf__seg--depends {
+  background: var(--tag);
+}
+.pf__seg--open {
+  background: color-mix(in srgb, var(--accent) 45%, var(--paper));
+}
+.pf__seg--statement {
+  background: var(--ash);
+}
+
+.pf__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8) var(--space-16);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pf__swatch {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  vertical-align: -1px;
+  margin-right: 4px;
+}
+
+.pf__swatch--wall {
+  background: color-mix(in srgb, var(--accent) 45%, var(--paper));
+}
+.pf__swatch--private {
+  background: var(--accent);
+}
+
+/* Models used, ranked. */
+.pf__models {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-12);
+}
+
+.pf__model {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-16) var(--space-20);
+  border-radius: var(--radius-small);
+}
+
+.pf__rank {
+  position: absolute;
+  top: var(--space-8);
+  right: var(--space-12);
+  color: var(--faint);
+}
+
+/* SVG charts stretch to the column; the viewBox keeps the math simple. */
+.pf__chart {
+  width: 100%;
+  height: 120px;
+  display: block;
+  overflow: visible;
+}
+
+.pf__area {
+  fill: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.pf__line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+
+.pf__pt {
+  fill: var(--accent);
+}
+
+.pf__bar--wall {
+  fill: color-mix(in srgb, var(--accent) 45%, var(--paper));
+}
+
+.pf__bar--private {
+  fill: var(--accent);
+}
+
+.pf__axis {
+  display: flex;
+  justify-content: space-between;
+}
+
+.pf__topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+/* The tag is inline-flex, which drops the whitespace text node between the
+   topic name and its count, so the gap has to come from the box. */
+.pf__topics .tag {
+  gap: 4px;
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .pf {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "head"
+      "rail"
+      "main";
+    gap: var(--space-24);
+  }
+
+  .pf__head {
+    padding-left: 0;
+    flex-wrap: wrap;
+  }
+
+  .pf__actions {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .pf__rail {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-8) var(--space-16);
+  }
+
+  .pf__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* /a/:id. The ask card and the thread under it. */
+.ask {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.ask__meta,
+.ask__verdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8) var(--space-12);
+}
+
+.ask__verdict {
+  font-family: var(--font-mono);
+  color: var(--muted);
+}
+
+.ask__meta a {
+  color: var(--ink);
+}
+
+.ask__text {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 48px);
+}
+
+.ask__text::first-letter {
+  text-transform: uppercase;
+}
+
+.ask .answer {
+  padding-top: var(--space-16);
+}
+
+.thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.thread__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.thread__msg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-16) var(--space-20);
+  background: var(--paper);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card-sm);
+  max-width: 72ch;
+}
+
+.thread__msg--me {
+  align-self: flex-end;
+  background: var(--canvas);
+  border-color: var(--hairline);
+}
+
+.thread__msg p {
+  margin: 0;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.thread__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.thread__form .composer__textarea {
+  min-height: 72px;
+  border-radius: var(--radius-card-sm);
+}
+
+.thread__formRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-12);
+  flex-wrap: wrap;
+}
+
+/* Your own lane on someone else's ask. Ruled off from the asker's thread
+   above it so the two never read as one conversation. */
+.thread--side {
+  padding-top: var(--space-24);
+  border-top: var(--divider);
+}
+
+.thread__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-12);
+  flex-wrap: wrap;
+}
+
+.thread__head .subheading {
+  margin: 0;
+}
+
+/* The sign in card under a public ask for visitors. */
+.thread__signin {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-12);
+}
+
+.thread__signin .label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.thread__signin .pill {
+  text-decoration: none;
+}
+
+/* The follow up link on cards and rows: same dotted underline as the
+   other quiet actions, ink so it reads as a door and not a chip. */
+.followup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-12);
+  flex-wrap: wrap;
+}
+
+.followup__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ink);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--faint);
+  white-space: nowrap;
+}
+
+.followup__link:hover,
+.followup__link:focus-visible {
+  text-decoration-color: var(--accent);
+}
+
+@media (pointer: coarse) {
+  .followup__link {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 800px) {
+  .me__grid,
+  .me__grid--two,
+  .me__links {
+    grid-template-columns: 1fr;
+  }
+  .profile {
+    flex-direction: column;
+  }
+  .admin__rowActions {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .admin__counts {
+    grid-template-columns: 1fr;
+  }
+  .composer__head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tip {
+    animation: none;
   }
 }

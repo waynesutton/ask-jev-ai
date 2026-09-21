@@ -1,7 +1,8 @@
 import { v } from "convex/values";
 import { query } from "./_generated/server";
 import { counters, GOAL, START_MS } from "./lib/counters";
-import { costUsd, INPUT_USD_PER_MTOK } from "./lib/pricing";
+import { costUsd, INPUT_USD_PER_MTOK, microToUsd } from "./lib/pricing";
+import { jevConfigured, jevProvider } from "./lib/jev";
 import { MOOD_LABELS } from "./questions";
 
 // The big numbers. Reactive: every accepted post re runs this.
@@ -25,8 +26,10 @@ export const counts = query({
   },
 });
 
-// Realtime Jev spend. Tokens come from sharded counters, price from pricing.ts.
-// projectedUsd extrapolates the average per judged message out to the goal.
+// Realtime spend. Jev tokens and model tokens come from sharded counters,
+// prices from pricing.ts. projectedUsd extrapolates Jev's average per
+// judged message out to the goal; model answers are metered separately
+// because only signed in asks get one.
 export const cost = query({
   args: {},
   returns: v.object({
@@ -37,15 +40,34 @@ export const cost = query({
     perMessageUsd: v.union(v.number(), v.null()),
     projectedUsd: v.union(v.number(), v.null()),
     inputUsdPerMtok: v.number(),
+    // Model answers behind signed in asks.
+    answers: v.number(),
+    answerInputTokens: v.number(),
+    answerOutputTokens: v.number(),
+    answerUsd: v.number(),
+    perAnswerUsd: v.union(v.number(), v.null()),
   }),
   handler: async (ctx) => {
-    const [judged, inputTokens, outputTokens] = await Promise.all([
+    const [
+      judged,
+      inputTokens,
+      outputTokens,
+      answers,
+      answerInputTokens,
+      answerOutputTokens,
+      answerMicro,
+    ] = await Promise.all([
       counters.count(ctx, "judged"),
       counters.count(ctx, "inputTokens"),
       counters.count(ctx, "outputTokens"),
+      counters.count(ctx, "answers"),
+      counters.count(ctx, "answerInputTokens"),
+      counters.count(ctx, "answerOutputTokens"),
+      counters.count(ctx, "answerMicroUsd"),
     ]);
     const totalUsd = costUsd(inputTokens, outputTokens);
     const perMessageUsd = judged > 0 ? totalUsd / judged : null;
+    const answerUsd = microToUsd(answerMicro);
     return {
       judged,
       inputTokens,
@@ -54,20 +76,49 @@ export const cost = query({
       perMessageUsd,
       projectedUsd: perMessageUsd === null ? null : perMessageUsd * GOAL,
       inputUsdPerMtok: INPUT_USD_PER_MTOK,
+      answers,
+      answerInputTokens,
+      answerOutputTokens,
+      answerUsd,
+      perAnswerUsd: answers > 0 ? answerUsd / answers : null,
     };
   },
 });
 
-// Is Jev on? Flips the moment TYPESAFE_API_KEY is set, no redeploy needed.
-export const gate = query({
+// How often people agreed with Jev. Two sharded counters, one division.
+// `rate` is null until the first vote so the panel can hide the row.
+export const agreement = query({
   args: {},
-  returns: v.object({ jev: v.boolean() }),
-  handler: async () => {
-    return { jev: Boolean(process.env.TYPESAFE_API_KEY) };
+  returns: v.object({
+    agree: v.number(),
+    disagree: v.number(),
+    total: v.number(),
+    rate: v.union(v.number(), v.null()),
+  }),
+  handler: async (ctx) => {
+    const [agree, disagree] = await Promise.all([
+      counters.count(ctx, "voteAgree"),
+      counters.count(ctx, "voteDisagree"),
+    ]);
+    const total = agree + disagree;
+    return { agree, disagree, total, rate: total > 0 ? agree / total : null };
   },
 });
 
-// Mood of the wall: mean Score over the latest judged live messages.
+// Is Jev on, and through which door? Flips the moment the env changes,
+// no redeploy needed.
+export const gate = query({
+  args: {},
+  returns: v.object({
+    jev: v.boolean(),
+    provider: v.union(v.literal("typesafe"), v.literal("gateway")),
+  }),
+  handler: async () => {
+    return { jev: jevConfigured(), provider: jevProvider() };
+  },
+});
+
+// Mood of the wall: mean Score over the latest judged public live messages.
 export const mood = query({
   args: {},
   returns: v.object({
@@ -78,7 +129,9 @@ export const mood = query({
   handler: async (ctx) => {
     const recent = await ctx.db
       .query("messages")
-      .withIndex("by_status", (q) => q.eq("status", "live"))
+      .withIndex("by_visibility_and_status", (q) =>
+        q.eq("visibility", "public").eq("status", "live"),
+      )
       .order("desc")
       .take(60);
     const moods = recent

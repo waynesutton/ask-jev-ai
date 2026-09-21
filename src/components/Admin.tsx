@@ -1,28 +1,22 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type FormEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowLeft, MagnifyingGlass, X } from "@phosphor-icons/react";
 import { useMutation, usePaginatedQuery, useQuery } from "convex/react";
 import type { FunctionArgs, FunctionReturnType } from "convex/server";
 import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
-import {
-  useSignInWithPassword,
-  useSignUpWithPassword,
-  type SignInWithPasswordResult,
-  type SignUpWithPasswordResult,
-} from "@convex-dev/auth/providers/password/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { useNow } from "../hooks/useNow";
 import { formatCount, timeAgo } from "../lib/format";
+import { AdminUsers } from "./AdminUsers";
+import { AuthForm } from "./AuthForm";
+import { Link } from "./Link";
 import { ThemeToggle } from "./ThemeToggle";
+import { Tooltip } from "./Tooltip";
 
 // /admin. Not linked anywhere, noindex, and every function it calls checks
-// the signed in username against ADMIN_USERNAME on the deployment.
+// the signed in username against ADMIN_USERNAME on the deployment. The
+// admin is a normal account with one extra role: same sign in form, same
+// session, more buttons.
 export function Admin() {
   // Belt and braces with robots.txt: tell crawlers that do land here to skip it.
   useEffect(() => {
@@ -42,9 +36,31 @@ export function Admin() {
     body = <p className="label">Checking session</p>;
   } else if (!isAuthenticated) {
     body = (
-      <SignIn
-        configured={me?.configured ?? true}
-        signupOpen={me?.signupOpen ?? false}
+      <AuthForm
+        providers={false}
+        mode="in"
+        eyebrow="Admin"
+        heading="Sign in."
+        note={
+          <>
+            {me && !me.configured && (
+              <p className="label" role="alert">
+                ADMIN_USERNAME is not set on the deployment. Nobody is admin.
+              </p>
+            )}
+            {me?.signupOpen && (
+              <p className="label">
+                The admin sign up window is open. Create the account at /sign-up
+                with the admin email, then remove ADMIN_SIGNUP_OPEN.
+              </p>
+            )}
+          </>
+        }
+        other={
+          me?.signupOpen
+            ? { href: "/sign-up", label: "Create the admin account" }
+            : undefined
+        }
       />
     );
   } else if (!me?.admin) {
@@ -56,175 +72,14 @@ export function Admin() {
   return (
     <main className="admin">
       <div className="wrap hero__top label">
-        <a className="admin__back" href="/">
+        <Link className="admin__back" href="/">
           <ArrowLeft size={11} aria-hidden="true" /> Back to the wall
-        </a>
+        </Link>
         <ThemeToggle />
       </div>
       <section className="wrap admin__body">{body}</section>
     </main>
   );
-}
-
-// One form, two verbs. Sign in is the default. "Create the admin account"
-// flips to sign up, offered only while ADMIN_SIGNUP_OPEN=1 on the
-// deployment; the server refuses it otherwise and for any other username.
-function SignIn({
-  configured,
-  signupOpen,
-}: {
-  configured: boolean;
-  signupOpen: boolean;
-}) {
-  const [mode, setMode] = useState<"in" | "up">("in");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const { signIn, pending: signingIn } = useSignInWithPassword(
-    api.auth.signInWithPassword,
-  );
-  const { signUp, pending: signingUp } = useSignUpWithPassword(
-    api.auth.signUpWithPassword,
-  );
-  const pending = signingIn || signingUp;
-
-  const onSubmit = async (event: FormEvent) => {
-    event.preventDefault();
-    setError(null);
-    const credentials = { username: username.trim(), password };
-    if (mode === "in") {
-      const result = await signIn(credentials);
-      if (result.status === "error") setError(signInMessage(result.userError));
-    } else {
-      const result = await signUp(credentials);
-      if (result.status === "error") setError(signUpMessage(result.userError));
-    }
-  };
-
-  return (
-    <form className="auth card" onSubmit={onSubmit}>
-      <p className="label">Admin</p>
-      <h1 className="heading-lg">
-        {mode === "in" ? "Sign in." : "Create the admin account."}
-      </h1>
-      {!configured && (
-        <p className="label" role="alert">
-          ADMIN_USERNAME is not set on the deployment. Nobody can sign up.
-        </p>
-      )}
-      <label className="label" htmlFor="admin-username">
-        Email
-      </label>
-      <input
-        id="admin-username"
-        className="composer__input auth__input"
-        type="email"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        autoComplete="username"
-        autoCapitalize="none"
-        spellCheck={false}
-        required
-        disabled={pending}
-      />
-      <label className="label" htmlFor="admin-password">
-        Password
-      </label>
-      <input
-        id="admin-password"
-        className="composer__input auth__input"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        autoComplete={mode === "in" ? "current-password" : "new-password"}
-        required
-        disabled={pending}
-      />
-      {error && (
-        <p className="label label--ink" role="alert">
-          {error}
-        </p>
-      )}
-      <div className="auth__actions">
-        <button className="pill pill--accent" type="submit" disabled={pending}>
-          {pending ? "Working" : mode === "in" ? "Sign in" : "Create account"}
-        </button>
-        {signupOpen && (
-          <button
-            className="ghost"
-            type="button"
-            disabled={pending}
-            onClick={() => {
-              setError(null);
-              setMode(mode === "in" ? "up" : "in");
-            }}
-          >
-            {mode === "in" ? "Create the admin account" : "I have an account"}
-          </button>
-        )}
-      </div>
-      {!signupOpen && (
-        <p className="label">
-          Sign up is closed. To create the account, set ADMIN_SIGNUP_OPEN=1 on
-          the deployment, sign up, then remove it.
-        </p>
-      )}
-    </form>
-  );
-}
-
-type SignInError = Extract<
-  SignInWithPasswordResult,
-  { status: "error" }
->["userError"];
-
-type SignUpError = Extract<
-  SignUpWithPasswordResult,
-  { status: "error" }
->["userError"];
-
-function signInMessage(userError: SignInError): string {
-  switch (userError.error) {
-    case "USER_NOT_FOUND":
-      return "No account with that email";
-    case "INVALID_CREDENTIALS":
-      return "Wrong email or password";
-    case "PASSWORD_TOO_SHORT":
-      return `Password must be at least ${userError.minimumLength} characters`;
-    case "PASSWORD_TOO_LONG":
-      return `Password must be at most ${userError.maximumLength} characters`;
-    case "PASSWORD_HAS_SURROUNDING_WHITESPACE":
-      return "Password cannot start or end with a space";
-    case "RATE_LIMITED":
-      return `Too many tries. Wait ${Math.ceil(userError.retryAfterMs / 1000)}s`;
-    case "OTHER_ERROR":
-      console.error("Sign in failed", userError.cause);
-      return "Something went wrong";
-  }
-}
-
-function signUpMessage(userError: SignUpError): string {
-  switch (userError.error) {
-    case "USERNAME_TAKEN":
-      return "That account already exists. Sign in instead";
-    case "USERNAME_TOO_SHORT":
-      return "Email is required";
-    case "USERNAME_HAS_SURROUNDING_WHITESPACE":
-    case "USERNAME_HAS_INVALID_CHARACTERS":
-      return "That email has characters that are not allowed";
-    case "PASSWORD_TOO_SHORT":
-      return `Password must be at least ${userError.minimumLength} characters`;
-    case "PASSWORD_TOO_LONG":
-      return `Password must be at most ${userError.maximumLength} characters`;
-    case "PASSWORD_HAS_SURROUNDING_WHITESPACE":
-      return "Password cannot start or end with a space";
-    case "PASSWORD_TOO_COMMON":
-      return "That password is too common";
-    case "OTHER_ERROR":
-      // createUser threw: window closed, an account exists, or the
-      // username is not ADMIN_USERNAME.
-      return "Sign up is closed. Only the admin email can create an account, once";
-  }
 }
 
 function NotAuthorized({ username }: { username: string | null }) {
@@ -238,6 +93,9 @@ function NotAuthorized({ username }: { username: string | null }) {
         does not match ADMIN_USERNAME on the deployment.
       </p>
       <div className="auth__actions">
+        <Link className="ghost" href="/">
+          Back to the wall
+        </Link>
         <button className="ghost" type="button" onClick={() => void signOut()}>
           Sign out
         </button>
@@ -247,12 +105,13 @@ function NotAuthorized({ username }: { username: string | null }) {
 }
 
 type AdminFilter = FunctionArgs<typeof api.admin.list>["filter"];
-type AdminMessage = FunctionReturnType<typeof api.admin.search>[number];
+export type AdminMessage = FunctionReturnType<typeof api.admin.search>[number];
 
 // Filter labels. "Held" is the public word for blocked, same as the wall.
 const FILTERS: Array<{ id: AdminFilter; label: string }> = [
   { id: "all", label: "All" },
   { id: "live", label: "Live" },
+  { id: "private", label: "Private" },
   { id: "blocked", label: "Held" },
   { id: "hidden", label: "Hidden" },
 ];
@@ -260,13 +119,91 @@ const FILTERS: Array<{ id: AdminFilter; label: string }> = [
 // Keystrokes to wait before the search query goes to the server.
 const SEARCH_DELAY_MS = 200;
 
-// Counts, a filter and search row, then every matching message with a hide
-// toggle. Hidden rows stay on the wall with the text blurred and labeled
-// "hidden by admin" the moment the toggle lands.
+type Tab = "asks" | "users";
+
+// Counts, then two tabs: every ask with hide toggles, and every account
+// with pause and block.
 function Dashboard({ username }: { username: string }) {
   const { signOut } = useAuthActions();
   const counts = useQuery(api.stats.counts);
+  const userTotals = useQuery(api.admin.userTotals);
+  const [tab, setTab] = useState<Tab>("asks");
+
+  return (
+    <>
+      <div className="admin__head">
+        <div>
+          <p className="label">Admin · {username}</p>
+          <h1 className="heading-lg">
+            {tab === "asks" ? "Every ask, every row." : "Every account."}
+          </h1>
+        </div>
+        <div className="admin__headActions">
+          <Link className="ghost" href="/me">
+            My account
+          </Link>
+          <button
+            className="ghost"
+            type="button"
+            onClick={() => void signOut()}
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+
+      {counts && (
+        <div className="admin__counts">
+          <Count label="Live" value={formatCount(counts.live)} />
+          <Count label="Held back" value={formatCount(counts.blocked)} />
+          <Count label="Submitted" value={formatCount(counts.submitted)} />
+          {userTotals && (
+            <Count
+              label="Accounts"
+              value={formatCount(userTotals.accounts)}
+              sub={
+                userTotals.paused + userTotals.blocked > 0
+                  ? `${userTotals.paused} paused · ${userTotals.blocked} blocked`
+                  : undefined
+              }
+            />
+          )}
+        </div>
+      )}
+
+      <div className="seg admin__tabs" role="tablist" aria-label="Admin tabs">
+        <button
+          type="button"
+          role="tab"
+          className={"seg__btn" + (tab === "asks" ? " seg__btn--on" : "")}
+          aria-selected={tab === "asks"}
+          onClick={() => setTab("asks")}
+        >
+          Asks
+        </button>
+        <button
+          type="button"
+          role="tab"
+          className={"seg__btn" + (tab === "users" ? " seg__btn--on" : "")}
+          aria-selected={tab === "users"}
+          onClick={() => setTab("users")}
+        >
+          Users
+        </button>
+      </div>
+
+      {tab === "asks" ? <Asks /> : <AdminUsers />}
+    </>
+  );
+}
+
+// A filter and search row, then every matching message with hide toggles.
+// Hidden rows stay on the wall with the text blurred and labeled "hidden
+// by admin" the moment the toggle lands. Private asks show here too, since
+// moderation covers everything that reaches a model.
+function Asks() {
   const setHidden = useMutation(api.admin.setHidden);
+  const setAnswerHidden = useMutation(api.admin.setAnswerHidden);
   const [filter, setFilter] = useState<AdminFilter>("all");
   const { results, status, loadMore } = usePaginatedQuery(
     api.admin.list,
@@ -302,26 +239,17 @@ function Dashboard({ username }: { username: string }) {
     }
   };
 
+  const toggleAnswer = async (messageId: Id<"messages">, hidden: boolean) => {
+    setBusyId(messageId);
+    try {
+      await setAnswerHidden({ messageId, hidden });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   return (
     <>
-      <div className="admin__head">
-        <div>
-          <p className="label">Admin · {username}</p>
-          <h1 className="heading-lg">The wall, every row.</h1>
-        </div>
-        <button className="ghost" type="button" onClick={() => void signOut()}>
-          Sign out
-        </button>
-      </div>
-
-      {counts && (
-        <div className="admin__counts">
-          <Count label="Live" value={formatCount(counts.live)} />
-          <Count label="Held back" value={formatCount(counts.blocked)} />
-          <Count label="Submitted" value={formatCount(counts.submitted)} />
-        </div>
-      )}
-
       {/* Tools. Segmented filter on the left, search pill on the right. The
           filter applies to the list and to search hits alike. */}
       <div className="admin__tools">
@@ -385,12 +313,7 @@ function Dashboard({ username }: { username: string }) {
             <p className="subheading">No row matches that.</p>
           </div>
         ) : (
-          <ul
-            className="admin__list"
-            style={{ listStyle: "none", margin: 0, padding: 0 }}
-          >
-            {hits.map(row)}
-          </ul>
+          <ul className="admin__list">{hits.map(row)}</ul>
         )
       ) : status === "LoadingFirstPage" ? (
         <p className="label">Loading</p>
@@ -401,12 +324,7 @@ function Dashboard({ username }: { username: string }) {
           </p>
         </div>
       ) : (
-        <ul
-          className="admin__list"
-          style={{ listStyle: "none", margin: 0, padding: 0 }}
-        >
-          {results.map(row)}
-        </ul>
+        <ul className="admin__list">{results.map(row)}</ul>
       )}
 
       {!searching && status === "CanLoadMore" && (
@@ -424,43 +342,115 @@ function Dashboard({ username }: { username: string }) {
 
   // One row. Shared by the paginated list and the search hits.
   function row(m: AdminMessage) {
+    const busy = busyId === m._id;
     return (
       <li
         key={m._id}
         className={"admin__row" + (m.hidden ? " admin__row--hidden" : "")}
       >
         <div className="admin__main">
-          <p className="admin__text">{m.text}</p>
+          <p className="admin__text">
+            <Link href={`/a/${m._id}`}>{m.text}</Link>
+          </p>
           <div className="admin__meta label">
             <span className={`tag tag--${m.status}`}>{m.status}</span>
+            {m.visibility === "private" && <span className="tag">private</span>}
             {m.hidden && <span className="tag">hidden</span>}
+            {m.handle ? (
+              <Tooltip tip={m.email ?? "Signed in account"}>
+                <Link href={`/${m.handle}`}>@{m.handle}</Link>
+              </Tooltip>
+            ) : (
+              <span>anonymous</span>
+            )}
             {m.reply && <span>{m.reply}</span>}
             {m.topic && <span>{m.topic}</span>}
             {typeof m.harm === "number" && (
               <span>harm {m.harm.toFixed(2)}</span>
             )}
+            {m.answerModel && (
+              <span>
+                {m.route ? `${m.route} · ` : ""}
+                {m.answerModel}
+                {m.answerStatus && m.answerStatus !== "done"
+                  ? ` · ${m.answerStatus}`
+                  : ""}
+              </span>
+            )}
             {!m.judged && <span>unjudged</span>}
             <span>{timeAgo(m._creationTime, now)}</span>
           </div>
+          {m.answerText && (
+            <p
+              className={
+                "admin__answer body-sm" +
+                (m.answerHidden ? " admin__answer--hidden" : "")
+              }
+            >
+              {m.answerText}
+            </p>
+          )}
         </div>
-        <button
-          className={"ghost ghost--small" + (m.hidden ? "" : " ghost--danger")}
-          type="button"
-          disabled={busyId === m._id}
-          onClick={() => void toggle(m._id, !m.hidden)}
-        >
-          {m.hidden ? "Unhide" : "Hide"}
-        </button>
+        <div className="admin__rowActions">
+          <Tooltip
+            tip={
+              m.hidden
+                ? "Show this ask on the wall again"
+                : "Blur this ask on the wall and mark it hidden by admin"
+            }
+          >
+            <button
+              className={
+                "ghost ghost--small" + (m.hidden ? "" : " ghost--danger")
+              }
+              type="button"
+              disabled={busy}
+              onClick={() => void toggle(m._id, !m.hidden)}
+            >
+              {m.hidden ? "Unhide" : "Hide"}
+            </button>
+          </Tooltip>
+          {m.answerText && (
+            <Tooltip
+              tip={
+                m.answerHidden
+                  ? "Show the model answer to everyone again"
+                  : "Hide the model answer from everyone but the owner and admin"
+              }
+            >
+              <button
+                className={
+                  "ghost ghost--small" +
+                  (m.answerHidden ? "" : " ghost--danger")
+                }
+                type="button"
+                disabled={busy}
+                onClick={() => void toggleAnswer(m._id, !m.answerHidden)}
+              >
+                {m.answerHidden ? "Unhide answer" : "Hide answer"}
+              </button>
+            </Tooltip>
+          )}
+        </div>
       </li>
     );
   }
 }
 
-function Count({ label, value }: { label: string; value: string }) {
+export function Count({
+  label,
+  value,
+  sub,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+}) {
   return (
     <div className="card admin__count">
       <span className="label">{label}</span>
       <span className="stat__value">{value}</span>
+      {sub && <span className="label">{sub}</span>}
     </div>
   );
 }

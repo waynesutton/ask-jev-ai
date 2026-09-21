@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Ask Jev mark. The ember stat card from the site with the card's 25 percent
+       corner radius, Archivo ExtraCondensed Black J in obsidian, and a sulfur
+       period: Jev answers, then stops. Glyph is a filled path, no font needed.
+       Source for icon.png; regenerate with the command in files.md. -->
+  <rect width="1024" height="1024" rx="256" fill="#fc5000" />
+  <path transform="translate(245.753 793.6) scale(0.821 -0.821)" fill="#070607" d="M208 -12Q149 -12 103 7.5Q57 27 31 71.5Q5 116 5 190L5 242L182 242L182 200Q182 175 187 160Q192 145 211 145Q231 145 236 160Q241 175 241 200L241 688L424 688L424 191Q424 117 395 72Q366 27 317 7.5Q268 -12 208 -12Z" />
+  <circle cx="706.534" cy="725.991" r="67.609" fill="#f5f28e" />
+</svg>

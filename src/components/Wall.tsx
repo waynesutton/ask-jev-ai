@@ -8,7 +8,15 @@ import { MOOD_LABELS } from "../../convex/questions";
 import { useIsAdmin } from "../hooks/useIsAdmin";
 import { useNow } from "../hooks/useNow";
 import { formatUsd, timeAgo } from "../lib/format";
-import { JevAnswers, replyChip } from "./JevAnswers";
+import { useMe } from "../hooks/useMe";
+import { AnswerBlock } from "./AnswerBlock";
+import { Avatar } from "./Avatar";
+import { CopyLink } from "./CopyLink";
+import { FollowUp } from "./FollowUp";
+import { EdgeTag, JevAnswers, VerdictChip } from "./JevAnswers";
+import { Link } from "./Link";
+import { Tooltip } from "./Tooltip";
+import { VoteButtons } from "./Vote";
 
 type PublicMessage = FunctionReturnType<typeof api.messages.search>[number];
 
@@ -31,6 +39,7 @@ export function Wall() {
   const now = useNow();
   const isAdmin = useIsAdmin();
   const setHidden = useMutation(api.admin.setHidden);
+  const setAnswerHidden = useMutation(api.admin.setAnswerHidden);
   const [busyId, setBusyId] = useState<Id<"messages"> | null>(null);
 
   // Search. `q` follows the keystrokes; `term` is what the server sees,
@@ -67,6 +76,15 @@ export function Wall() {
     }
   };
 
+  const toggleAnswer = async (messageId: Id<"messages">, hidden: boolean) => {
+    setBusyId(messageId);
+    try {
+      await setAnswerHidden({ messageId, hidden });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   const card = (m: PublicMessage) => (
     <WallCard
       key={m._id}
@@ -75,6 +93,7 @@ export function Wall() {
       isAdmin={isAdmin}
       busy={busyId === m._id}
       onToggle={toggle}
+      onToggleAnswer={toggleAnswer}
     />
   );
 
@@ -194,74 +213,156 @@ function WallCard({
   isAdmin,
   busy,
   onToggle,
+  onToggleAnswer,
 }: {
   m: PublicMessage;
   now: number;
   isAdmin: boolean;
   busy: boolean;
   onToggle: (messageId: Id<"messages">, hidden: boolean) => Promise<void>;
+  onToggleAnswer: (messageId: Id<"messages">, hidden: boolean) => Promise<void>;
 }) {
   const label = typeof m.mood === "number" ? moodLabel(m.mood) : null;
-  const chip = replyChip(m.reply);
+  const me = useMe();
+  const hasAnswer =
+    m.answerStatus !== undefined && m.answerStatus !== "skipped";
+  // Only a verdict with a right and wrong takes a vote, and never through
+  // a blur, since the voter cannot read what Jev judged.
+  const canVote =
+    m.status === "live" &&
+    m.judged &&
+    !m.masked &&
+    (m.reply === "yes" || m.reply === "no" || m.reply === "depends");
+  // Three looks for a wall hidden ask: blurred for a stranger, in full
+  // with a small "blurred for others" tag for its owner and the admin.
+  const ownBlur = m.wallHidden && !m.masked;
   return (
     <li
       className={
         "card wallcard" +
         (label ? ` wallcard--${label.toLowerCase()}` : "") +
-        (m.hidden ? " wallcard--hidden" : "")
+        (m.masked ? " wallcard--hidden" : "") +
+        (hasAnswer ? " wallcard--answered" : "") +
+        (m.text.split(" ").length > 24 ? " wallcard--xl" : "")
       }
     >
-      {/* Hidden rows arrive masked from the server. The blur is cosmetic;
+      {/* Signed in asks carry the author. A public profile links; a private
+          one shows the handle and nothing else. */}
+      {m.author && (
+        <div className="wallcard__author caption muted">
+          <Avatar
+            photoUrl={m.author.photoUrl}
+            handle={m.author.handle}
+            size={20}
+          />
+          {m.author.publicProfile ? (
+            <Tooltip tip="Open this person's public profile">
+              <Link href={`/${m.author.handle}`}>@{m.author.handle}</Link>
+            </Tooltip>
+          ) : (
+            <span>@{m.author.handle}</span>
+          )}
+        </div>
+      )}
+      {/* Masked rows arrive masked from the server. The blur is cosmetic;
           the words never reach the browser. Everything else on the card
           stays put so a hide reads as a blur, not a different card. */}
       <p
         className={
           "wallcard__text" +
           (m.text.split(" ").length > 8 ? " wallcard__text--long" : "") +
-          (m.hidden ? " wallcard__text--hidden" : "")
+          (m.masked ? " wallcard__text--hidden" : "")
         }
-        aria-hidden={m.hidden || undefined}
+        aria-hidden={m.masked || undefined}
       >
         {m.text}
       </p>
+      {hasAnswer && !m.masked && <AnswerBlock message={m} compact />}
       <div className="wallcard__foot">
         <div className="wallcard__meta caption muted">
           {m.hidden && (
             <span className="wallcard__hidden">hidden by admin</span>
           )}
+          {m.wallHidden && !m.hidden && (
+            <Tooltip
+              tip={
+                ownBlur
+                  ? "This ask uses a word the wall does not show. You see it in full; everyone else sees a blur."
+                  : "This ask uses a word the wall does not show. The asker still has it, and its answer, in full."
+              }
+            >
+              <span className="wallcard__hidden">
+                {ownBlur ? "blurred for others" : "held words"}
+              </span>
+            </Tooltip>
+          )}
           {m.judged ? (
             <>
-              {chip && <span className="tag">{chip}</span>}
+              <VerdictChip reply={m.reply} answers={m.answers} />
+              {m.answers && m.status === "live" && (
+                <EdgeTag answers={m.answers} />
+              )}
               {label && (
-                <span className="wallcard__mood">
-                  <span className="dot dot--mood" aria-hidden="true" />
-                  {label.toLowerCase()}
-                </span>
+                <Tooltip tip="The mood Jev read in the words">
+                  <span className="wallcard__mood">
+                    <span className="dot dot--mood" aria-hidden="true" />
+                    {label.toLowerCase()}
+                  </span>
+                </Tooltip>
               )}
               {m.topic && <span>{m.topic}</span>}
               {typeof m.costUsd === "number" && (
-                <span>
-                  {formatUsd(m.costUsd)}
-                  {typeof m.latencyMs === "number" && ` · ${m.latencyMs}ms`}
-                </span>
+                <Tooltip tip="What this one Jev judgment cost, and how long it took">
+                  <span>
+                    {formatUsd(m.costUsd)}
+                    {typeof m.latencyMs === "number" && ` · ${m.latencyMs}ms`}
+                  </span>
+                </Tooltip>
               )}
             </>
           ) : (
             <span>Jev offline</span>
           )}
-          <span>{timeAgo(m._creationTime, now)}</span>
+          <Link href={`/a/${m._id}`} className="wallcard__time">
+            {timeAgo(m._creationTime, now)}
+          </Link>
+          <CopyLink messageId={m._id} />
+          {canVote && (
+            <VoteButtons
+              messageId={m._id}
+              agree={m.agree}
+              disagree={m.disagree}
+              disabled={me?.status === "paused"}
+            />
+          )}
+          <FollowUp m={m} />
           {isAdmin && (
-            <button
-              className={
-                "ghost ghost--small wallcard__admin" +
-                (m.hidden ? "" : " ghost--danger")
-              }
-              type="button"
-              disabled={busy}
-              onClick={() => void onToggle(m._id, !m.hidden)}
-            >
-              {m.hidden ? "Unhide" : "Hide"}
-            </button>
+            <>
+              <button
+                className={
+                  "ghost ghost--small wallcard__admin" +
+                  (m.hidden ? "" : " ghost--danger")
+                }
+                type="button"
+                disabled={busy}
+                onClick={() => void onToggle(m._id, !m.hidden)}
+              >
+                {m.hidden ? "Unhide" : "Hide"}
+              </button>
+              {hasAnswer && (
+                <button
+                  className={
+                    "ghost ghost--small wallcard__admin" +
+                    (m.answerHidden ? "" : " ghost--danger")
+                  }
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void onToggleAnswer(m._id, !m.answerHidden)}
+                >
+                  {m.answerHidden ? "Unhide answer" : "Hide answer"}
+                </button>
+              )}
+            </>
           )}
         </div>
         {m.answers && <JevAnswers answers={m.answers} />}

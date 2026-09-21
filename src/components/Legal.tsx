@@ -535,6 +535,14 @@ const PRIVACY: Array<Section> = [
         the ask and most of it is shown on the wall.
       </>,
       <>
+        <b>Votes on Jev.</b> If you tap agree or disagree under an ask, one row
+        stores the ask id, which way you voted, and your session id or account
+        id so the same person counts once. The agree and disagree totals are
+        shown on the card and roll into a public agreement rate. Votes never
+        change a verdict. Deleting your account deletes your votes; the totals
+        stay.
+      </>,
+      <>
         <b>Nothing else.</b> No phone, cookies beyond the sign in session
         described below, ad pixels, fingerprinting, or cross site tracking.
       </>,
@@ -544,10 +552,14 @@ const PRIVACY: Array<Section> = [
     title: "What is collected when you have an account",
     body: [
       <>
-        <b>Sign in details.</b> Your email address, used as your username, and a
-        password hash. The hash is made and held by Convex Auth using Argon2id.
-        The plain password is never stored. A session token is kept in your
-        browser so you stay signed in.
+        <b>Sign in details.</b> Your email address, used as your username, and
+        the methods you use to sign in. Email and password accounts have a
+        password hash made and held by Convex Auth using Argon2id; the plain
+        password is never stored. Google or GitHub sign in shares a verified
+        email, provider account id, and basic profile. The app uses your display
+        name to start your profile and links matching verified emails to the
+        same account. It does not store provider access tokens or copy provider
+        photos. A session token is kept in your browser so you stay signed in.
       </>,
       <>
         <b>Profile.</b> A user number assigned in sign up order, a handle, and
@@ -558,7 +570,10 @@ const PRIVACY: Array<Section> = [
       <>
         <b>Your asks.</b> Every ask you post while signed in is linked to your
         account, marked public or private, and may be archived. Follow ups in a
-        thread are stored as messages on that thread.
+        thread are stored as messages on that thread. A follow up thread you
+        open on someone else's ask stores your account id, the ask id, the
+        model, and the turns. Only you and the admin can read it. It is deleted
+        when you delete your account or when the ask is deleted.
       </>,
       <>
         <b>Model answers.</b> The answer text, which model wrote it, its input
@@ -620,6 +635,11 @@ const PRIVACY: Array<Section> = [
     title: "Where the data goes",
     body: [
       <>
+        <b>Google and GitHub</b> handle sign in when you choose their buttons.
+        The provider receives the sign in request and returns basic identity
+        information to Convex Auth. We request no access to your mail or repositories.
+      </>,
+      <>
         <b>Convex</b> (<Out href="https://convex.dev">convex.dev</Out>) stores
         every ask, session id, judgment, account, profile, photo, thread, and
         usage row, runs the functions, handles sign in, serves the site, and
@@ -667,7 +687,9 @@ const PRIVACY: Array<Section> = [
       </>,
       <>
         Private asks do not appear on the wall, in search, on your profile, or
-        on a public page. Their threads are visible only to you.
+        on a public page. Their threads are visible only to you. Follow up
+        threads you open on other people's asks are visible only to you as well.
+        The asker cannot see them.
       </>,
       <>
         The admin can see everything: every ask in every status, public or

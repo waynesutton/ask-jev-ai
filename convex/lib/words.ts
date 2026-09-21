@@ -6,11 +6,12 @@ import {
 import { SAFE_WORDS } from "./safeWords";
 
 // Shared by the browser (instant feedback) and the server (enforcement).
-// Two gates run in code before Jev ever sees a sentence:
+// Two gates run in code before Jev ever sees an anonymous sentence:
 //   1. Blocklist. Profanity, slurs, sexual terms. Masked as *** and never posted.
 //   2. Allowlist. Plain English from safe-words plus a few demo words.
+// Signed in asks skip both gates; see parseOpenAsk at the bottom.
 
-// A message is a short ask: at least three words, at most fifteen.
+// An anonymous message is a short ask: at least three words, at most fifteen.
 export const MIN_WORDS = 3;
 export const MAX_WORDS = 15;
 
@@ -84,6 +85,37 @@ export function checkWords(input: string): Array<WordCheck> {
       const blocked = isBlockedWord(clean) || isBlockedWord(raw);
       return { raw, clean, ok: !blocked && isSafeWord(clean), blocked };
     });
+}
+
+// A signed in ask is longer and freer: up to sixty words, any vocabulary.
+// Neither word list rejects it. The blocklist still runs, but as a flag:
+// a hit means the wall shows the ask blurred to everyone but its owner and
+// the admin. Punctuation is kept because the model reads it; only
+// whitespace is normalized.
+export const MAX_OPEN_WORDS = 60;
+export const MAX_OPEN_CHARS = 600;
+
+export type OpenParseResult =
+  | { ok: true; text: string; words: number; profane: boolean }
+  | { ok: false; reason: "count" };
+
+export function countOpenWords(input: string): number {
+  const text = input.trim();
+  return text.length === 0 ? 0 : text.split(/\s+/).length;
+}
+
+// The blocklist as a yes or no, for the flag and for the composer note.
+export function hasProfanity(text: string): boolean {
+  return hasBlockedText(text) || checkWords(text).some((c) => c.blocked);
+}
+
+export function parseOpenAsk(input: string): OpenParseResult {
+  const text = input.trim().replace(/\s+/g, " ");
+  const words = countOpenWords(text);
+  if (words < 1 || words > MAX_OPEN_WORDS || text.length > MAX_OPEN_CHARS) {
+    return { ok: false, reason: "count" };
+  }
+  return { ok: true, text, words, profane: hasProfanity(text) };
 }
 
 // The single source of truth for what counts as a valid post.

@@ -42,6 +42,62 @@ export const REPLIES = {
 
 export type Reply = keyof typeof REPLIES;
 
+// Which model answers a signed in ask. Jev picks, in the same call as
+// everything else, so routing adds no latency. `model` is a Convex AI
+// Gateway id. `why` is the one line the card shows next to the model name.
+export const ROUTES = {
+  quick: {
+    criteria:
+      "Wants a short fact, a definition, a date, a number, or a simple yes or no with a reason. Example: how far is the moon",
+    model: "google/gemini-3.5-flash-lite",
+    label: "gemini 3.5 flash lite",
+    why: "wants a quick fact",
+  },
+  explain: {
+    criteria:
+      "Wants an explanation, advice, a comparison, an opinion, or something written with care. Example: how do I say no to a friend",
+    model: "anthropic/claude-haiku-4.5",
+    label: "claude haiku 4.5",
+    why: "wants an explanation",
+  },
+  reason: {
+    criteria:
+      "Needs step by step thinking: math, logic, code, puzzles, planning. Example: what is seventeen times twenty three",
+    model: "openai/gpt-5.4-mini",
+    label: "gpt 5.4 mini",
+    why: "needs some reasoning",
+  },
+  current: {
+    criteria:
+      "Asks about something recent or changing: news, prices, scores, weather, what happened. Example: who won the game last night",
+    model: "perplexity/sonar",
+    label: "perplexity sonar",
+    why: "asks about something recent",
+  },
+} as const;
+
+export type Route = keyof typeof ROUTES;
+
+// The card's label for a gateway model id. Falls back to the id itself
+// for a model no route names any more.
+export function modelLabel(model: string): string {
+  for (const route of Object.values(ROUTES)) {
+    if (route.model === model) return route.label;
+  }
+  return model;
+}
+
+export const ROUTE_KEYS = Object.keys(ROUTES) as Array<Route>;
+
+export function isRoute(value: string): value is Route {
+  return value in ROUTES;
+}
+
+// Route criteria in the shape a Choice question wants.
+const ROUTE_CRITERIA = Object.fromEntries(
+  ROUTE_KEYS.map((key) => [key, ROUTES[key].criteria]),
+) as Record<Route, string>;
+
 export const QUESTIONS = {
   reply: {
     type: "choice",
@@ -89,6 +145,12 @@ export const QUESTIONS = {
     type: "choice",
     instructions: "What is `message` mostly about?",
     criteria: { ...TOPICS },
+  },
+  route: {
+    type: "choice",
+    instructions:
+      "If a language model had to write a short answer to `message`, which kind of model fits best?",
+    criteria: ROUTE_CRITERIA,
   },
 } as const satisfies Record<string, Question>;
 
