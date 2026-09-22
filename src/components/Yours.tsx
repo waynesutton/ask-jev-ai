@@ -6,7 +6,7 @@ import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { useMe } from "../hooks/useMe";
 import { AnswerBlock } from "./AnswerBlock";
-import { FollowUp } from "./FollowUp";
+import { FollowUp, signInHref } from "./FollowUp";
 import { JevAnswers, VerdictChip } from "./JevAnswers";
 import { Link } from "./Link";
 import { OpenAskNote } from "./OpenAsk";
@@ -56,6 +56,9 @@ function rememberDismissed(id: Id<"messages">) {
 // it comes back `open` (what, why, how) `OpenAskNote` says so and points
 // at sign in, where the same ask would get a model answer. No extra call:
 // the detection is one of the seven questions Jev already answered.
+//
+// A visitor ask on a held topic gets `HeldAskNote` the same way: the wall
+// does not host it signed out, but the same words go through signed in.
 export function Yours({ sessionId }: Props) {
   const me = useMe();
   const mine = useQuery(api.messages.mine, { sessionId });
@@ -159,6 +162,7 @@ function Latest({
         </div>
         <AnswerBlock message={m} compact />
         <OpenAskNote m={m} />
+        {!signedIn && <HeldAskNote m={m} />}
         {m.answers && <JevAnswers answers={m.answers} defaultOpen={false} />}
       </div>
 
@@ -208,4 +212,24 @@ function StatusLabel({ status, judged }: { status: string; judged: boolean }) {
     return <span className="label">Held back by Jev</span>;
   }
   return <span className="label">Judge unreachable</span>;
+}
+
+// The line under a visitor's ask on a topic the wall does not host. The
+// held list is server only, so the composer cannot say this before the
+// post; this is the first place the visitor can learn why, and what would
+// work. Exact guard: a held term row is stored `blocked` with `judged:
+// false` and no Jev call. A hold Jev placed itself has `judged: true`, and
+// signing in would not change that verdict, so it gets no line. Yours only
+// renders this for visitors; a signed in ask with a held term is live and
+// `wallHidden`, never blocked.
+function HeldAskNote({ m }: { m: Mine }) {
+  if (m.status !== "blocked" || m.judged) return null;
+  return (
+    <p className="nudge body-sm">
+      The wall does not host this topic for visitors.{" "}
+      <Link href={signInHref("/")}>Sign in</Link> and the same ask goes through:
+      Jev judges it, a model answers it, and the wall blurs it for everyone but
+      you.
+    </p>
+  );
 }
