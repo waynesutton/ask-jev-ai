@@ -15,6 +15,7 @@ import { CopyLink } from "./CopyLink";
 import { FollowUp } from "./FollowUp";
 import { EdgeTag, JevAnswers, VerdictChip } from "./JevAnswers";
 import { Link } from "./Link";
+import { OpenAskNote } from "./OpenAsk";
 import { Tooltip } from "./Tooltip";
 import { VoteButtons } from "./Vote";
 
@@ -278,6 +279,9 @@ function WallCard({
         {m.text}
       </p>
       {hasAnswer && !m.masked && <AnswerBlock message={m} compact />}
+      {/* Anonymous open ask: no answer block, so this slot says why and
+          offers sign in or a yes or no. Renders nothing on every other row. */}
+      <OpenAskNote m={m} />
       <div className="wallcard__foot">
         <div className="wallcard__meta caption muted">
           {m.hidden && (

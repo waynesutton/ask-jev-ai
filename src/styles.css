@@ -14,6 +14,7 @@
   --ink: #070607;
   --canvas: #e2e2df;
   --paper: #f7f6f2;
+  --stage: #d9d9d5; /* inset well inside a paper card, a hair under canvas */
   --on-dark: #ffffff;
   --hairline: rgba(7, 6, 7, 0.12);
   --muted: rgba(7, 6, 7, 0.64);
@@ -91,6 +92,7 @@ html[data-theme="dark"] {
   --ink: #f4f4f4;
   --canvas: #0a0b0c;
   --paper: #141516;
+  --stage: #0a0b0c;
   --on-dark: #0a0b0c;
   --hairline: rgba(244, 244, 244, 0.14);
   --muted: rgba(244, 244, 244, 0.64);
@@ -1519,34 +1521,315 @@ button:disabled {
   border: 1.5px dashed var(--hairline);
 }
 
-/* How it works */
+/* How it works. Head on the left, three step cards on the right. Each card
+   opens with a stage: a canvas inset holding the app's own primitives in
+   miniature, clipped at the right edge like a print bleed. Under the cards,
+   two ruled rows: the stack as link chips, then the numbers. */
 
-.facts {
+.how__grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: minmax(240px, 3fr) 9fr;
+  gap: var(--space-48);
+  align-items: start;
+}
+
+.how__head {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-16);
 }
 
-.fact {
+.how__head .heading-lg {
+  margin-top: var(--space-4);
+}
+
+.how__cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+  margin-top: var(--space-8);
+}
+
+.how__cta .ghost svg {
+  margin-left: -2px;
+}
+
+.how__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-16);
+}
+
+.how__step {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-12);
+}
+
+/* The stage. Fixed height so the three cards line up; overflow clips the
+   mini card at the right edge. */
+.how__stage {
+  height: 184px;
+  padding: var(--space-16) 0 0 var(--space-16);
+  border-radius: var(--radius-small);
+  background: var(--stage);
+  overflow: hidden;
+}
+
+.how__mini {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  width: calc(100% + 24px);
+  padding: var(--space-16);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-small);
+  background: var(--paper);
+}
+
+.how__mini-ask {
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.how__mini-ask::first-letter {
+  text-transform: uppercase;
+}
+
+.how__mini-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  white-space: nowrap;
+}
+
+/* The chips in the stage sit on paper, so they need the hairline to read. */
+.how__mini-meta .chip {
+  border-color: var(--hairline);
+}
+
+.how__mini-answers {
+  margin: 0;
+}
+
+/* Stage 02. The four lanes as paper strips that step in, one lit. */
+.how__lanes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.how__lane {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  width: calc(100% + 24px);
+  padding: 9px var(--space-12);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-small);
+  background: var(--paper);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  line-height: 1.2;
+  color: var(--muted);
+}
+
+.how__lane:nth-child(2) {
+  margin-left: 6px;
+}
+.how__lane:nth-child(3) {
+  margin-left: 12px;
+}
+.how__lane:nth-child(4) {
+  margin-left: 18px;
+}
+
+.how__lane--on {
+  color: var(--ink);
+}
+
+.how__lane-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  box-shadow: inset 0 0 0 1.5px currentColor;
+}
+
+.how__lane--on .how__lane-dot {
+  background: var(--accent);
+  box-shadow: none;
+}
+
+.how__lane-name {
+  min-width: 7ch;
+}
+
+.how__lane-model {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.how__lane-tag {
+  padding: 3px 8px;
+}
+
+/* Stage 03. The model line, the streamed sentence with its caret, and
+   three tabs that light up one after another. */
+.how__model {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.how__model-name {
+  color: var(--ink);
+}
+
+.how__stream {
+  color: var(--ink);
+}
+
+.how__caret {
+  display: inline-block;
+  width: 1.5px;
+  height: 0.95em;
+  margin-left: 3px;
+  vertical-align: -0.12em;
+  background: var(--accent);
+  animation: blink 1s steps(1) infinite;
+}
+
+.how__tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.how__tab {
+  position: relative;
+  flex: 1;
+  height: 20px;
+  border: 1px solid var(--hairline);
+  border-radius: 5px;
+}
+
+.how__tab::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+.how__tab:nth-child(2)::after {
+  animation-delay: 0.3s;
+}
+
+.how__tab:nth-child(3)::after {
+  animation-delay: 0.6s;
+}
+
+/* The words under the stage. */
+.how__copy {
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
-  padding: var(--space-24);
+  padding: var(--space-20) var(--space-12) var(--space-12);
 }
 
-/* Linked fact cards. Arrow sits inline with the value, accent on hover. */
-.fact--link {
+.how__title {
+  font-weight: 700;
+}
+
+.how__out {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: var(--space-4);
   color: var(--ink);
-  transition: color 160ms ease;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--hairline);
+  transition: text-decoration-color 160ms ease;
 }
 
-.fact--link .body svg {
-  vertical-align: -2px;
+.how__out:hover,
+.how__out:focus-visible {
+  text-decoration-color: var(--accent);
 }
 
-.fact--link:hover .body,
-.fact--link:focus-visible .body {
-  color: var(--accent);
+/* The ruled rows under the cards. */
+.how__row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-24);
+  margin: var(--space-40) 0 0;
+  padding-top: var(--space-24);
+  border-top: var(--divider);
+}
+
+.how__row-label {
+  flex: 0 0 88px;
+}
+
+.how__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+.how__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
+  color: var(--ink);
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.how__link:hover,
+.how__link:focus-visible {
+  background: var(--ink);
+  color: var(--on-dark);
+  border-color: var(--ink);
+}
+
+.how__numbers {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-24);
+  margin-top: var(--space-24);
+}
+
+.how__num {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.how__num dd {
+  margin: 0;
 }
 
 /* Hidden by admin. The text arrives masked; the blur softens the bullets
@@ -2047,8 +2330,13 @@ button:disabled {
   .lanes > .label:last-child {
     grid-column: 1 / -1;
   }
-  .facts {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Head above the cards. */
+  .how__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-40);
+  }
+  .how__head {
+    max-width: 600px;
   }
 }
 
@@ -2081,7 +2369,18 @@ button:disabled {
   .section {
     padding: var(--space-48) 0;
   }
-  .facts {
+  .how__steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .how__row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-12);
+  }
+  .how__row-label {
+    flex-basis: auto;
+  }
+  .how__numbers {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .admin__row {
@@ -2113,7 +2412,7 @@ button:disabled {
 }
 
 @media (max-width: 520px) {
-  .facts,
+  .how__numbers,
   .admin__counts {
     grid-template-columns: 1fr;
   }
@@ -2184,6 +2483,8 @@ button:disabled {
 @media (prefers-reduced-motion: reduce) {
   .wallcard,
   .dot--pulse,
+  .how__caret,
+  .how__tab::after,
   .composer__field::after {
     animation: none;
   }
@@ -2280,10 +2581,19 @@ button:disabled {
   color: var(--on-dark);
 }
 
-.hero__top a.account__signup:focus-visible { background: var(--ink); }
+.hero__top a.account__signup:focus-visible {
+  background: var(--ink);
+}
 
-.pill--small { padding: var(--space-8) var(--space-16); font-size: var(--text-body-sm); }
-.account__auth { display: inline-flex; align-items: center; gap: var(--space-8); }
+.pill--small {
+  padding: var(--space-8) var(--space-16);
+  font-size: var(--text-body-sm);
+}
+.account__auth {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+}
 
 /* Sign up (ghost) and Sign in (pill) share one box. The ghost carries a
    1.5px border, so the pill gets the same border in its own ink colour;
@@ -2295,15 +2605,45 @@ button:disabled {
   font-size: var(--text-body-sm);
   line-height: 1;
 }
-.auth__providers { display: grid; gap: 10px; }
-.auth__provider { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 46px; width: 100%; }
-.auth__divider { display: flex; align-items: center; gap: 12px; }
-.auth__divider::before, .auth__divider::after { content: ""; flex: 1; height: 1px; background: currentColor; opacity: .2; }
-.oauth-error { margin: 16px auto; padding: 16px; max-width: 520px; border: 1px solid currentColor; }
+.auth__providers {
+  display: grid;
+  gap: 10px;
+}
+.auth__provider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 46px;
+  width: 100%;
+}
+.auth__divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.auth__divider::before,
+.auth__divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.2;
+}
+.oauth-error {
+  margin: 16px auto;
+  padding: 16px;
+  max-width: 520px;
+  border: 1px solid currentColor;
+}
 @media (max-width: 520px) {
-  .account__auth { gap: 8px; }
+  .account__auth {
+    gap: 8px;
+  }
   .hero__top a.account__signin,
-  .hero__top a.account__signup { padding: 8px 12px; }
+  .hero__top a.account__signup {
+    padding: 8px 12px;
+  }
 }
 
 .account__btn {
@@ -2529,11 +2869,33 @@ button:disabled {
 
 /* Under a visitor's own card when Jev read the ask as open: the one place
    the app asks for a sign in with a reason it can point at. */
-.yours__nudge {
+/* The one line note in a card's answer slot: why an anonymous open ask
+   has no answer, and the way in. Shared by the wall, Yours, and /a/:id.
+   Accent rule for the visitor version; the signed in version is muted and
+   the rule goes with it. */
+.nudge {
   margin: 0;
   padding: var(--space-8) var(--space-12);
   border-left: 2px solid var(--accent);
   color: var(--ink);
+  line-height: 1.5;
+}
+
+.nudge a {
+  color: var(--ink);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--faint);
+}
+
+.nudge a:hover,
+.nudge a:focus-visible {
+  text-decoration-color: var(--accent);
+}
+
+.nudge.muted {
+  border-left-color: var(--faint);
+  color: var(--muted);
 }
 
 /* Pages that share the admin shell: /me, /u, /a. */

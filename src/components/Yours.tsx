@@ -1,10 +1,9 @@
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { useMe } from "../hooks/useMe";
 import { AnswerBlock } from "./AnswerBlock";
-import { FollowUp, signInHref } from "./FollowUp";
+import { FollowUp } from "./FollowUp";
 import { JevAnswers, VerdictChip } from "./JevAnswers";
-import { Link } from "./Link";
+import { OpenAskNote } from "./OpenAsk";
 import { Tooltip } from "./Tooltip";
 
 type Props = {
@@ -19,14 +18,12 @@ const SHOWN = 3;
 // hero card keeps its shape.
 //
 // For visitors, Jev's `reply` Choice doubles as the sign in prompt. When
-// it comes back `open` (what, why, how) the card says so and points at
-// sign in, where the same ask would get a model answer. No extra call: the
-// detection is one of the seven questions Jev already answered.
+// it comes back `open` (what, why, how) `OpenAskNote` says so and points
+// at sign in, where the same ask would get a model answer. No extra call:
+// the detection is one of the seven questions Jev already answered.
 export function Yours({ sessionId }: Props) {
   const mine = useQuery(api.messages.mine, { sessionId });
   const retry = useMutation(api.messages.retry);
-  const me = useMe();
-  const visitor = me === null;
 
   if (!mine || mine.length === 0) return null;
 
@@ -73,13 +70,7 @@ export function Yours({ sessionId }: Props) {
               <FollowUp m={m} />
             </div>
             <AnswerBlock message={m} compact />
-            {visitor && m.status === "live" && m.answers?.reply === "open" && (
-              <p className="yours__nudge body-sm">
-                Jev read this as an open question, not a yes or no.{" "}
-                <Link href={signInHref(`/a/${m._id}`)}>Sign in</Link> and a
-                model Jev picks writes the answer.
-              </p>
-            )}
+            <OpenAskNote m={m} />
             {m.answers && (
               <JevAnswers answers={m.answers} defaultOpen={false} />
             )}

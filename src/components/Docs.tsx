@@ -302,9 +302,11 @@ export function Docs() {
           </p>
           <p className="body">
             When Jev reads a visitor ask as an open question, one that wants
-            more than yes or no, the card under Yours says so and offers sign
-            in. No extra call is made; the verdict was already in the same
-            response.
+            more than yes or no, the card says so where the answer would sit:
+            on the wall, under Yours, and on the ask page. It offers sign in,
+            where the same ask gets a model answer, or a way back to the box
+            to ask something Jev can settle. No extra call is made; the
+            verdict was already in the same response.
           </p>
         </>
       ),

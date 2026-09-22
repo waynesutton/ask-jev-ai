@@ -55,7 +55,7 @@ The whole policy lives in one file: `convex/questions.ts`. The lanes and their m
 - Model answers for signed in asks. Jev sorts the ask into one of four lanes, the lane's model answers through the Convex AI Gateway, and the card shows the model, the one line reason, latency, and cost. Each ask gets a page with a thread for follow ups
 - Follow up on any ask. Every card carries "Ask a follow up", or "Sign in to ask follow up questions" for visitors, which brings you back to the ask once you are in. A thread follows its ask: your own public ask continues in a public thread anyone can read, your own private ask in a private one, and making the ask private takes the thread with it. Anyone else's ask, including a visitor's yes or no, opens a private thread only you and the admin can read, answered by the model Jev picked for that ask with the ask and Jev's verdict as context. Your side threads list under Follow ups on `/me`
 - Ask anything once signed in. Up to sixty words, no word list, on the wall or private. An ask with a held term or a blocklist word still gets its verdict and its answer; it blurs on the wall for others and reads in full on your account page
-- Open question nudge for visitors. Jev's own verdict on the ask tells the app when a three to fifteen word question was not a yes or no, and the ask's card in Yours says so and offers sign in
+- Open question line for visitors. Jev's own verdict on the ask tells the app when a three to fifteen word question was not a yes or no, and the card says so where the answer would sit, on the wall, in Yours, and on the ask page, with a sign in link and a way back to the box to ask a yes or no. Signed in readers see a quiet line explaining why the anonymous ask has no answer
 - Your account page: history with filters, per ask visibility, archive, delete, profile with photo and links, public or private profile, change password, export as JSON, delete account
 - Profiles at `/handle`, public or private. User number, joined date, GitHub, LinkedIn, X, then usage: asks and answers, streaks, a year of asks as a heatmap, how Jev replied, the models Jev picked and why, tokens and asks over thirty days, top topics, and the account's wall asks. Owners see their private counts; nobody else does
 - `/docs`, the long version of how it works. Every number on the page is imported from the constant the server enforces
@@ -128,9 +128,11 @@ OAuth implementation status and remaining provider setup are tracked in `prds/go
 | `npm run dev:backend` | `convex dev`, watches and pushes the backend                     |
 | `npm run build`       | Production build to `dist`                                       |
 | `npm run typecheck`   | Type checks the app and the Convex functions                     |
-| `npm test`            | Local OAuth identity and redirect tests, no deployment           |
+| `npm test`            | Local tests: Jev door, OAuth identity, reply backfill. No deployment |
 | `npm run words:build` | Regenerates `convex/lib/safeWords.ts` from the upstream list     |
 | `npm run deploy`      | Builds and uploads the site through the static hosting component |
+
+One off backfills live in `convex/migrations.ts` and run with `npx convex run`. `migrations:backfillReply '{"dryRun":true}'` counts live asks judged before Jev's `reply` question existed; without `dryRun` it asks Jev the one `reply` Choice per row (about $0.00003 each) so those cards can show a verdict chip or the open question line. `limit` caps a run and the log prints the cursor to resume from. Add `--prod` to run it there.
 
 ## Layout
 

@@ -22,6 +22,7 @@ import { CopyLink } from "./CopyLink";
 import { signInHref } from "./FollowUp";
 import { EdgeTag, JevAnswers, VerdictChip } from "./JevAnswers";
 import { Link } from "./Link";
+import { OpenAskNote } from "./OpenAsk";
 import { ThemeToggle } from "./ThemeToggle";
 import { Hint, Tooltip } from "./Tooltip";
 import { VoteButtons } from "./Vote";
@@ -146,6 +147,8 @@ export function AskPage({ id }: { id: string }) {
                   Jev held this ask back, so no model answered it.
                 </p>
               )}
+              {/* Anonymous open ask: why there is no answer, and the way in. */}
+              <OpenAskNote m={ask} />
               <AnswerBlock message={ask} />
             </article>
 
