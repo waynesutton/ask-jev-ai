@@ -16,6 +16,8 @@ export function HowItWorks({ jev, provider }: Props) {
   const providerCount = new Set(
     Object.values(ROUTES).map((r) => r.model.split("/")[0]),
   ).size;
+  // Which door Jev came through. Flips with the JEV_PROVIDER env, live.
+  const viaGateway = jev && provider === "gateway";
   return (
     <section className="section" id="how">
       <div className="wrap">
@@ -44,13 +46,19 @@ export function HowItWorks({ jev, provider }: Props) {
             and every number, is in the <Link href="/docs">docs</Link>.
           </p>
           <p className="subheading muted">
-            <b>Every model answer runs through the Convex AI Gateway.</b>{" "}
-            {routeCount} models from {providerCount} providers sit behind one
-            endpoint. Convex holds the provider keys; this app holds none. A
-            Convex action asks for a short lived token scoped to this
-            deployment, calls the model Jev named, and streams the answer back
-            into the database where every open tab picks it up. Add a model by
-            changing one line in one file.{" "}
+            <b>
+              {viaGateway
+                ? "Jev and every model answer run through the Convex AI Gateway."
+                : "Every model answer runs through the Convex AI Gateway."}
+            </b>{" "}
+            {routeCount} models from {providerCount} providers
+            {viaGateway ? ", plus Jev," : ""} sit behind one endpoint. Convex
+            holds the provider keys; this app holds none. A Convex action asks
+            for a short lived token scoped to this deployment,{" "}
+            {viaGateway ? "asks Jev its seven questions, " : ""}calls the model
+            Jev named, and streams the answer back into the database where
+            every open tab picks it up. Add a model by changing one line in one
+            file.{" "}
             <a
               href="https://docs.convex.dev/ai-gateway/overview"
               target="_blank"
@@ -72,11 +80,15 @@ export function HowItWorks({ jev, provider }: Props) {
             value={
               !jev
                 ? "Jev, waiting for key"
-                : provider === "gateway"
+                : viaGateway
                   ? "Jev via Convex AI Gateway"
                   : "Jev via TypeSafe"
             }
-            href="https://docs.typesafe.ai/introduction"
+            href={
+              viaGateway
+                ? "https://docs.convex.dev/ai-gateway/setup#decisions-with-jev"
+                : "https://docs.typesafe.ai/introduction"
+            }
           />
           <Fact
             label="Answers"

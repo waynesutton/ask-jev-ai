@@ -102,7 +102,8 @@ Profile verified. Signed in as the throwaway `profiledemo`, posted one wall ask 
 ## Decisions
 
 - Jev stays the judge. The AI Gateway model only writes the answer. Jev's verdict lands first, so the wall stays as fast as before.
-- Jev is called through `convex/lib/jev.ts`. `JEV_PROVIDER` unset means TypeSafe with the existing key. `JEV_PROVIDER=gateway` plus `JEV_GATEWAY_URL` sends the same System One body to the gateway on a `getServiceToken("ai-gateway")` token, and any gateway failure falls back to TypeSafe when a key is present. The gateway body shape for Jev is an assumption until Convex publishes it.
+- Jev is called through `convex/lib/jev.ts`. Since 2026-09-21 the default is the Convex AI Gateway Decisions endpoint, `POST https://ai-gateway.convex.dev/alpha/decisions` with model `typesafe/jev-1.13`, on a `getServiceToken("ai-gateway")` token. The endpoint takes the System One body unchanged, so only the URL and the model id differ from the direct call. `JEV_PROVIDER=typesafe` pins TypeSafe direct first. Whichever is primary, the other is tried once on failure when configured. `JEV_GATEWAY_URL` overrides the endpoint if it moves out of alpha. When the gateway refuses the deployment and no key is set, `JevUnavailableError` publishes the ask unjudged instead of retrying.
+- The judge stays on `fetch` rather than `convexGateway.evaluationModel()` with AI SDK `evaluate`. The app already types the System One request and response, the Decisions body is the same shape, and the SDK's evaluation interface is marked experimental. One function, `gatewayDecisions`, is the only place to change if the alpha shape moves.
 - Answers use `@convex-dev/agent` for threads, streaming deltas, and usage callbacks, with `convexGateway()` from `@convex-dev/ai-sdk-provider` as the model. One `Agent` per model id, cached.
 - The wall card gets a periodic mirror of the streaming text on the message row (`answerText`, patched every 350ms) so the home page never loads the agent's React bundle. The ask page streams for real through `useUIMessages`.
 - Client side routing is a forty line `useRoute` hook and a `Link` wrapper. Static hosting falls back to `index.html`, so no router package.
@@ -116,31 +117,15 @@ The existing admin row was validated against the new schema on push, then backfi
 
 ## Switch Jev to the Convex AI Gateway
 
-When Convex lists Jev on the gateway, paste this to the agent:
+Done 2026-09-21, the day Convex launched the gateway with Jev on it. The plan had assumed `typesafe-ai/jev` and an unknown path; the shipped endpoint is `POST /alpha/decisions` with model `typesafe/jev-1.13` and the System One body unchanged, so `gatewayDecisions` in `convex/lib/jev.ts` is a thin URL and model swap. Two changes from the plan: the gateway became the default instead of an opt in, since it needs no env at all, and the fallback runs both ways so `JEV_PROVIDER=typesafe` is a safe pin rather than a one way door.
 
-```
-Switch Jev to the Convex AI Gateway.
+Verified on dev in this order:
 
-Read convex/lib/jev.ts. Open https://docs.convex.dev/ai-gateway/models and
-find the TypeSafe entry. Confirm the model id (JEV_GATEWAY_MODEL, currently
-"typesafe-ai/jev"), the request path, and the request body. If the gateway
-takes the System One body unchanged, keep gatewaySystemOne as is; if it
-differs, adapt only that function and its return mapping. Then:
+1. Ask with no env change. Row `judgeProvider: "gateway"`, "is the sky blue on a clear day", yes at 0.99, 217ms. Hero "Jev online · Convex AI Gateway", Judge card "Jev via Convex AI Gateway".
+2. `npx convex env set JEV_GATEWAY_URL https://ai-gateway.convex.dev/alpha/nope`. Next ask: log `Jev gateway failed, falling back to typesafe` with the gateway's own 400 listing `/alpha/decisions` as supported; row `judgeProvider: "typesafe"`, "can penguins fly south for winter", no at 0.98, 357ms.
+3. `npx convex env remove JEV_GATEWAY_URL`.
 
-1. npx convex env set JEV_PROVIDER gateway
-2. npx convex env set JEV_GATEWAY_URL <path from the docs>
-3. Post one wall ask on dev and confirm judgeProvider is "gateway" on the
-   row (npx convex data messages --limit 1 --order desc) and the hero line
-   reads "Jev online · Convex AI Gateway".
-4. Break JEV_GATEWAY_URL on purpose, post again, confirm the row says
-   "typesafe" and the log has "Jev gateway failed, falling back".
-5. Restore the URL, then repeat the two env sets with --prod after the next
-   npm run deploy.
-
-Do not touch judge.ts, questions.ts, or the answer pipeline. Update the
-Judge fact card copy in HowItWorks only if the docs name the product
-differently.
-```
+Prod needs only `npm run deploy`; the step is in `task.md`. If the gateway is slower or verdicts drift over the first week, `npx convex env set JEV_PROVIDER typesafe --prod` pins TypeSafe first with no redeploy.
 
 ## Files
 
@@ -150,7 +135,9 @@ Changed: `convex/{schema,users,auth,admin,messages,judge,questions,stats,convex.
 
 New dependencies: `@convex-dev/agent`, `@convex-dev/ai-sdk-provider`, `ai`, `@radix-ui/react-tooltip`.
 
-New env vars: none required today. `JEV_PROVIDER` and `JEV_GATEWAY_URL` for the switch above. The AI Gateway must be enabled on the deployment for answers to run.
+New env vars: none required. `JEV_PROVIDER=typesafe` pins TypeSafe first; `JEV_GATEWAY_URL` overrides the Decisions endpoint. `TYPESAFE_API_KEY` is now optional and serves as the fallback. The AI Gateway must be enabled on the deployment for Jev and the answers to run.
+
+Tests: `convex/jev.test.ts`.
 
 ## Verification
 

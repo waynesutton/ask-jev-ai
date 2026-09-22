@@ -6,6 +6,12 @@
 export const TYPESAFE_ENDPOINT = "https://api.typesafe.ai/v1/systemone";
 export const TYPESAFE_MODEL = "jev-latest";
 
+// The same model as the Convex AI Gateway lists it. Decisions models do
+// not appear in GET /v1/models, so this cannot be discovered at runtime.
+// Lives here, not in jev.ts, so the docs page can import it without
+// pulling convex/server into the browser bundle.
+export const JEV_GATEWAY_MODEL = "typesafe/jev-1.13";
+
 type Entry = string | Record<string, unknown> | Array<unknown>;
 
 export type NoulQuestion = {

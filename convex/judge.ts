@@ -6,7 +6,7 @@ import {
 } from "./_generated/server";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
-import { askJev, jevConfigured } from "./lib/jev";
+import { askJev, jevConfigured, JevUnavailableError } from "./lib/jev";
 import { counters } from "./lib/counters";
 import { bumpDaily, bumpUsage } from "./lib/usage";
 import {
@@ -19,7 +19,9 @@ import {
 // One Jev request per message. Seven questions, evaluated in parallel,
 // about 100 ms. The seventh picks which model would answer the ask, so a
 // signed in ask leaves this call already routed. Runs in the default
-// Convex runtime via fetch, through lib/jev.ts which chooses the provider.
+// Convex runtime via fetch, through lib/jev.ts which chooses the door:
+// the Convex AI Gateway Decisions endpoint by default, TypeSafe direct
+// as the fallback or when pinned.
 export const run = internalAction({
   args: {
     messageId: v.id("messages"),
@@ -68,6 +70,17 @@ export const run = internalAction({
         },
       });
     } catch (error) {
+      // No door opens for this deployment (gateway off, no key). Same
+      // outcome as no key at all: publish on the allowlist, say so once,
+      // and do not retry, since a retry cannot change the env.
+      if (error instanceof JevUnavailableError) {
+        console.warn(error.message);
+        await ctx.runMutation(internal.judge.record, {
+          messageId: args.messageId,
+          verdict: { kind: "unjudged" },
+        });
+        return null;
+      }
       console.error("Judge failed", {
         messageId: args.messageId,
         attempt: args.attempt,

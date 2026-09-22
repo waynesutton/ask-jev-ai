@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@convex-dev/agent": "^0.7.3",
-    "@convex-dev/ai-sdk-provider": "^0.1.0",
+    "@convex-dev/ai-sdk-provider": "^0.2.1",
     "@convex-dev/auth": "^2.0.0-alpha.2",
     "@convex-dev/rate-limiter": "^0.4.0",
     "@convex-dev/sharded-counter": "^0.2.1",

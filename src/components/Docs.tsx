@@ -13,6 +13,7 @@ import {
 } from "../../convex/lib/limits";
 import { INPUT_USD_PER_MTOK, MODEL_PRICES } from "../../convex/lib/pricing";
 import { GOAL } from "../../convex/lib/counters";
+import { JEV_GATEWAY_MODEL } from "../../convex/lib/typesafe";
 import {
   BLOCK_THRESHOLD,
   MAX_JUDGE_ATTEMPTS,
@@ -389,6 +390,18 @@ export function Docs() {
               AI Gateway overview
             </Out>
           </p>
+          <p className="body">
+            <b>Jev goes through the same door.</b> The gateway has a Decisions
+            endpoint for Jev, listed as <code>{JEV_GATEWAY_MODEL}</code>. The
+            judge action mints the same short lived token, posts the seven
+            questions there, and gets the same typed answers back. No TypeSafe
+            key is needed. If the gateway fails and a key is present, the call
+            falls back to TypeSafe directly and the row records which door
+            answered. <code>JEV_PROVIDER=typesafe</code> pins the direct path.{" "}
+            <Out href="https://docs.convex.dev/ai-gateway/setup#decisions-with-jev">
+              Decisions with Jev
+            </Out>
+          </p>
         </>
       ),
     },
@@ -589,7 +602,9 @@ export function Docs() {
             A visitor ask stores the words, an anonymous session id from the
             browser, Jev's answers, the token count, and the latency. The IP
             address is read for the one minute rate limit window and is not
-            stored on the ask. The ask text alone goes to TypeSafe.
+            stored on the ask. The ask text alone goes to Jev, through the
+            Convex AI Gateway by default, or straight to TypeSafe when the
+            gateway is down or pinned off.
           </p>
           <p className="body">
             A signed in ask stores, on top of that, who posted it and whether it
@@ -619,7 +634,8 @@ export function Docs() {
               [
                 "Judge",
                 <>
-                  Jev, TypeSafe's System One model, called over HTTP.{" "}
+                  Jev, TypeSafe's judgment model, through the Convex AI
+                  Gateway Decisions endpoint, TypeSafe direct as the fallback.{" "}
                   <Out href="https://docs.typesafe.ai">docs.typesafe.ai</Out>
                 </>,
               ],

@@ -190,7 +190,7 @@ function Home() {
                     ? "Jev connecting"
                     : jev
                       ? `Jev online · ${gate.provider === "gateway" ? "Convex AI Gateway" : "TypeSafe"}`
-                      : "Jev offline · add TYPESAFE_API_KEY"
+                      : "Jev offline · add TYPESAFE_API_KEY or unset JEV_PROVIDER"
                 }
               />
             </div>

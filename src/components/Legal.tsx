@@ -9,7 +9,7 @@ import { ThemeToggle } from "./ThemeToggle";
 // (hide, pause, block, restore). Update the date and the copy together when
 // the data flow changes.
 
-const UPDATED = "September 19, 2026";
+const UPDATED = "September 21, 2026";
 const SITE = "https://www.askjev.ai";
 const REPO = "https://github.com/waynesutton/ask-jev-ai";
 const MAINTAINER = "https://waynesutton.ai";
@@ -643,13 +643,16 @@ const PRIVACY: Array<Section> = [
         <b>Convex</b> (<Out href="https://convex.dev">convex.dev</Out>) stores
         every ask, session id, judgment, account, profile, photo, thread, and
         usage row, runs the functions, handles sign in, serves the site, and
-        routes model answers through its AI Gateway. Convex sees request
-        metadata including IP as part of hosting.
+        routes Jev's judgment and the model answers through its AI Gateway.
+        Convex sees request metadata including IP as part of hosting.
       </>,
       <>
         <b>TypeSafe AI</b> (<Out href="https://typesafe.ai">typesafe.ai</Out>)
-        receives the text of the ask, and only the text, so Jev can judge it. No
-        session id, account id, email, or IP is sent with it.
+        receives the text of the ask, and only the text, so Jev can judge it. By
+        default it arrives through the Convex AI Gateway; if the gateway is
+        unavailable or the app is pinned to TypeSafe, it goes to TypeSafe
+        directly. No session id, account id, email, or IP is sent with it either
+        way.
       </>,
       <>
         <b>Language model providers</b> receive, through the Convex AI Gateway,

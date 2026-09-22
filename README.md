@@ -16,7 +16,7 @@ This app is a small, honest test of that idea. One call per message. Six questio
 
 1. You type an ask. As a visitor the browser checks it against a profanity blocklist and a 12,530 word human verified allowlist before the Ask button turns on. Signed in there is no word list and the limit is sixty words; a blocklist word only warns you that the wall copy will blur.
 2. A Convex mutation runs the same checks server side, applies an IP rate limit and a per session or per user rate limit, stores the message as `judging`, and schedules the judge. A visitor ask that carries a held term is turned away. A signed in ask that carries a held term or a blocklist word is accepted and flagged `wallHidden`: it blurs on the wall and in search for everyone except the author and the admin, and reads in full on the author's account page.
-3. A Convex action sends `{ message }` to Jev with six questions: does Jev say yes, no, or it depends; is it unkind; is it adult; does it target a person; what is the mood; what is the topic. Signed in asks carry a seventh: which of four lanes should answer this, a quick fact, an explanation, some reasoning, or something recent.
+3. A Convex action sends `{ message }` to Jev through the Convex AI Gateway with six questions: does Jev say yes, no, or it depends; is it unkind; is it adult; does it target a person; what is the mood; what is the topic. Signed in asks carry a seventh: which of four lanes should answer this, a quick fact, an explanation, some reasoning, or something recent.
 4. A mutation records the answers, token usage, and latency. Any safety probability at or above `0.6` marks the ask `blocked`. Otherwise it goes `live`.
 5. For a signed in live ask, an action opens a thread and streams a short answer from the lane's model through the Convex AI Gateway. Tokens and cost are recorded per answer and per account. Follow ups stay in the thread with the same model.
 6. Every open tab sees the wall, the counter, and the cost tracker move at once. No polling, no websockets to manage.
@@ -25,21 +25,21 @@ The whole policy lives in one file: `convex/questions.ts`. The lanes and their m
 
 ## Stack
 
-| Layer                | What                                                                                                                                          | Link                                                                                                                 |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Judge                | Jev, TypeSafe System One. Called over HTTP with `fetch`, no SDK. One switch moves the call to the Convex AI Gateway when Jev is listed there. | [docs.typesafe.ai](https://docs.typesafe.ai)                                                                         |
-| Answers              | Convex AI Gateway. Gemini 3.5 Flash Lite, Claude Haiku 4.5, GPT 5.4 mini, Perplexity Sonar. Jev picks the lane.                               | [AI Gateway](https://docs.convex.dev/ai-gateway/overview)                                                            |
-| Threads              | `@convex-dev/agent` for threads, streaming, and usage callbacks, with `@convex-dev/ai-sdk-provider` as the model.                             | [Agent](https://www.convex.dev/components/agent)                                                                     |
-| Backend and database | Convex. Queries, mutations, actions, scheduler, file storage, full text search index on the wall.                                             | [convex.dev](https://convex.dev)                                                                                     |
-| Counters             | `@convex-dev/sharded-counter` for live, blocked, submitted, judged, token, and answer totals.                                                 | [Sharded Counter](https://www.convex.dev/components/sharded-counter)                                                 |
-| Rate limits          | `@convex-dev/rate-limiter`. Fixed window per IP, token bucket per session or per user, a budget per account for answers.                      | [Rate Limiter](https://www.convex.dev/components/rate-limiter)                                                       |
-| Auth                 | `@convex-dev/auth` v2 (alpha). Email and password for everyone; one email is the admin.                                                       | [Convex Auth](https://auth-v2.previews.convex.dev/getting-started)                                                   |
-| Hosting              | `@convex-dev/static-hosting`. The built Vite app is served from the Convex deployment.                                                        | [Static Hosting](https://www.convex.dev/components/static-hosting)                                                   |
-| Frontend             | React 19, Vite, TypeScript. Plain CSS with two skins on one set of tokens. A forty line router.                                               | [react.dev](https://react.dev), [vite.dev](https://vite.dev)                                                         |
-| Icons and tooltips   | Phosphor icons, Radix Tooltip.                                                                                                                | [phosphoricons.com](https://phosphoricons.com), [Radix](https://www.radix-ui.com/primitives/docs/components/tooltip) |
-| Word gates           | `obscenity` for the blocklist, The Best Codes safe words for the allowlist.                                                                   | [obscenity](https://github.com/jo3-l/obscenity), [safe-words](https://github.com/The-Best-Codes/safe-words)          |
-| Type                 | Archivo, DM Sans, DM Mono in light. Inter in dark.                                                                                            | [Google Fonts](https://fonts.google.com)                                                                             |
-| Domain               | Cloudflare DNS in front of the Convex site.                                                                                                   | [Cloudflare](https://www.cloudflare.com)                                                                             |
+| Layer                | What                                                                                                                                                                               | Link                                                                                                                  |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Judge                | Jev, TypeSafe System One, through the Convex AI Gateway Decisions endpoint (`typesafe/jev-1.13`) on a deployment token. No key. TypeSafe direct is the fallback when a key is set. | [Decisions](https://docs.convex.dev/ai-gateway/api#post-alphadecisions), [docs.typesafe.ai](https://docs.typesafe.ai) |
+| Answers              | Convex AI Gateway. Gemini 3.5 Flash Lite, Claude Haiku 4.5, GPT 5.4 mini, Perplexity Sonar. Jev picks the lane.                                                                    | [AI Gateway](https://docs.convex.dev/ai-gateway/overview)                                                             |
+| Threads              | `@convex-dev/agent` for threads, streaming, and usage callbacks, with `@convex-dev/ai-sdk-provider` as the model.                                                                  | [Agent](https://www.convex.dev/components/agent)                                                                      |
+| Backend and database | Convex. Queries, mutations, actions, scheduler, file storage, full text search index on the wall.                                                                                  | [convex.dev](https://convex.dev)                                                                                      |
+| Counters             | `@convex-dev/sharded-counter` for live, blocked, submitted, judged, token, and answer totals.                                                                                      | [Sharded Counter](https://www.convex.dev/components/sharded-counter)                                                  |
+| Rate limits          | `@convex-dev/rate-limiter`. Fixed window per IP, token bucket per session or per user, a budget per account for answers.                                                           | [Rate Limiter](https://www.convex.dev/components/rate-limiter)                                                        |
+| Auth                 | `@convex-dev/auth` v2 (alpha). Email and password for everyone; one email is the admin.                                                                                            | [Convex Auth](https://auth-v2.previews.convex.dev/getting-started)                                                    |
+| Hosting              | `@convex-dev/static-hosting`. The built Vite app is served from the Convex deployment.                                                                                             | [Static Hosting](https://www.convex.dev/components/static-hosting)                                                    |
+| Frontend             | React 19, Vite, TypeScript. Plain CSS with two skins on one set of tokens. A forty line router.                                                                                    | [react.dev](https://react.dev), [vite.dev](https://vite.dev)                                                          |
+| Icons and tooltips   | Phosphor icons, Radix Tooltip.                                                                                                                                                     | [phosphoricons.com](https://phosphoricons.com), [Radix](https://www.radix-ui.com/primitives/docs/components/tooltip)  |
+| Word gates           | `obscenity` for the blocklist, The Best Codes safe words for the allowlist.                                                                                                        | [obscenity](https://github.com/jo3-l/obscenity), [safe-words](https://github.com/The-Best-Codes/safe-words)           |
+| Type                 | Archivo, DM Sans, DM Mono in light. Inter in dark.                                                                                                                                 | [Google Fonts](https://fonts.google.com)                                                                              |
+| Domain               | Cloudflare DNS in front of the Convex site.                                                                                                                                        | [Cloudflare](https://www.cloudflare.com)                                                                              |
 
 ## Features
 
@@ -65,7 +65,8 @@ The whole policy lives in one file: `convex/questions.ts`. The lanes and their m
 - Light and dark skins, stored per browser, applied before first paint
 - Server only held topics list read from an environment variable, never in the repo or the bundle
 - Admin features: sign in, filter and search every message in every status including private, hide or unhide asks and model answers from the dashboard or straight from the wall, a Users tab with usage per account (asks, tokens, spend) and pause, block, and restore. Blocked emails cannot sign up again. Hidden text is masked server side so it never reaches the browser
-- Graceful no key mode. Without `TYPESAFE_API_KEY` posts publish on the allowlist alone and the UI says Jev is offline
+- Jev runs through the Convex AI Gateway by default, on the same deployment token as the model answers, so the app stores no TypeSafe key. If the gateway call fails and `TYPESAFE_API_KEY` is set, the same request goes to TypeSafe directly and the row records which door answered. The hero line and the Judge card name the live provider
+- Graceful no Jev mode. If the gateway refuses the deployment (free plan, anonymous local backend) and no `TYPESAFE_API_KEY` is set, asks publish unjudged on the allowlist alone instead of retrying
 - Terms of service and privacy policy at `/terms` and `/privacy`, written for what this app stores and where it goes, linked from the colophon
 
 ## Run it locally
@@ -98,22 +99,22 @@ npm run dev
 
 Set these on the Convex deployment with `npx convex env set NAME value`. None of them live in the repo.
 
-| Name                            | Purpose                                                                                  |
-| ------------------------------- | ---------------------------------------------------------------------------------------- |
-| `TYPESAFE_API_KEY`              | Turns the judge on. Without it the wall runs on the allowlist alone.                     |
-| `AUTH_PRIVATE_KEY`, `AUTH_JWKS` | RS256 pair for Convex Auth. Generate with `npx @convex-dev/auth`.                        |
-| `AUTH_GOOGLE_CLIENT_ID` | Google OAuth web client id for this deployment. |
-| `AUTH_GOOGLE_CLIENT_SECRET` | Google client secret, stored only in Convex. |
-| `AUTH_GITHUB_CLIENT_ID` | GitHub OAuth application client id for this deployment. |
-| `AUTH_GITHUB_CLIENT_SECRET` | GitHub client secret, stored only in Convex. |
-| `AUTH_ALLOWED_ORIGINS` | Optional comma separated exact return origins in addition to `CONVEX_SITE_URL`. Dev: `http://localhost:5173,http://localhost:5199`. |
-| `ADMIN_USERNAME`                | The email that gets admin features. Other emails sign up freely.                         |
-| `ADMIN_SIGNUP_OPEN`             | Set to `1` only while creating the admin account, then remove it.                        |
-| `HELD_TERMS`                    | Optional. Comma separated topics stored as held without calling Jev.                     |
-| `JEV_PROVIDER`                  | Optional. `gateway` sends Jev calls through the Convex AI Gateway. Unset means TypeSafe. |
-| `JEV_GATEWAY_URL`               | Required with `JEV_PROVIDER=gateway`. The gateway path for Jev.                          |
+| Name                            | Purpose                                                                                                                                     |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TYPESAFE_API_KEY`              | Optional. TypeSafe direct as the fallback for Jev, or the primary with `JEV_PROVIDER=typesafe`.                                             |
+| `AUTH_PRIVATE_KEY`, `AUTH_JWKS` | RS256 pair for Convex Auth. Generate with `npx @convex-dev/auth`.                                                                           |
+| `AUTH_GOOGLE_CLIENT_ID`         | Google OAuth web client id for this deployment.                                                                                             |
+| `AUTH_GOOGLE_CLIENT_SECRET`     | Google client secret, stored only in Convex.                                                                                                |
+| `AUTH_GITHUB_CLIENT_ID`         | GitHub OAuth application client id for this deployment.                                                                                     |
+| `AUTH_GITHUB_CLIENT_SECRET`     | GitHub client secret, stored only in Convex.                                                                                                |
+| `AUTH_ALLOWED_ORIGINS`          | Optional comma separated exact return origins in addition to `CONVEX_SITE_URL`. Dev: `http://localhost:5173,http://localhost:5199`.         |
+| `ADMIN_USERNAME`                | The email that gets admin features. Other emails sign up freely.                                                                            |
+| `ADMIN_SIGNUP_OPEN`             | Set to `1` only while creating the admin account, then remove it.                                                                           |
+| `HELD_TERMS`                    | Optional. Comma separated topics stored as held without calling Jev.                                                                        |
+| `JEV_PROVIDER`                  | Optional. Unset means Jev goes through the Convex AI Gateway first. `typesafe` pins TypeSafe direct first with the gateway as the fallback. |
+| `JEV_GATEWAY_URL`               | Optional. Overrides the Decisions endpoint, `https://ai-gateway.convex.dev/alpha/decisions`, if it moves out of alpha.                      |
 
-Model answers need the AI Gateway enabled on the Convex deployment. No provider keys are stored here; the gateway holds them.
+Jev and the model answers both need the AI Gateway enabled on the Convex deployment, which means a paid Convex plan and a project linked deployment. No provider keys are stored here; the gateway holds them. Whichever provider is primary, the other is tried once on failure when it is configured, so a gateway outage or a bad key never takes the wall down.
 
 OAuth callbacks are `/oauth/google/callback` and `/oauth/github/callback` on the deployment's HTTP site URL. Each provider has its own component prefix ahead of the static site's `/` route. OAuth links only verified emails, refuses the admin email, and rechecks blocked or deleted accounts on every sign in. Legacy accounts keep password sign in. OAuth-only accounts cannot acquire a password through public sign up.
 
@@ -127,7 +128,7 @@ OAuth implementation status and remaining provider setup are tracked in `prds/go
 | `npm run dev:backend` | `convex dev`, watches and pushes the backend                     |
 | `npm run build`       | Production build to `dist`                                       |
 | `npm run typecheck`   | Type checks the app and the Convex functions                     |
-| `npm test`            | Local OAuth identity and redirect tests, no deployment          |
+| `npm test`            | Local OAuth identity and redirect tests, no deployment           |
 | `npm run words:build` | Regenerates `convex/lib/safeWords.ts` from the upstream list     |
 | `npm run deploy`      | Builds and uploads the site through the static hosting component |
 
