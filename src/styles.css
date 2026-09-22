@@ -582,7 +582,8 @@ button:disabled {
 
 /* Anchor targets land with breathing room instead of flush to the top edge. */
 #wall,
-#how {
+#how,
+#docs {
   scroll-margin-top: var(--space-32);
 }
 
@@ -1045,7 +1046,10 @@ button:disabled {
   min-height: 20px;
 }
 
-/* Yours */
+/* Yours. One card under the box: head row with the X, the ask, then a note
+   saying where the ask lives now. A visitor's live ask carries a hairline
+   that drains over the fade time, then the block steps toward the wall and
+   goes. Hover or focus anywhere on the block holds the clock. */
 
 .yours {
   display: flex;
@@ -1055,10 +1059,121 @@ button:disabled {
   border-top: var(--divider);
 }
 
-.yours__list {
+.yours__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.yours__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: -6px -6px -6px 0;
+  border-radius: var(--radius-pill);
+  color: var(--faint);
+  transition:
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.yours__close:hover,
+.yours__close:focus-visible {
+  color: var(--ink);
+  background: var(--ash);
+}
+
+.yours__note {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.yours__note a {
+  color: var(--ink);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--faint);
+}
+
+.yours__note a:hover,
+.yours__note a:focus-visible {
+  text-decoration-color: var(--accent);
+}
+
+.yours__toWall {
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
+}
+
+/* The countdown. A hairline track, an ink fill that shrinks from the right
+   over the fade time. Duration comes from the component so the number
+   lives in one place. */
+.yours__drain {
+  display: block;
+  height: 1.5px;
+  background: var(--hairline);
+  overflow: hidden;
+}
+
+.yours__drainFill {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  transform-origin: left center;
+  animation: yours-drain 4s linear forwards;
+}
+
+.yours:hover .yours__drainFill,
+.yours:focus-within .yours__drainFill {
+  animation-play-state: paused;
+}
+
+@keyframes yours-drain {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* Leaving: a step down toward the wall, a hair smaller, gone. */
+.yours--leaving {
+  pointer-events: none;
+  animation: yours-leave 480ms cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+
+@keyframes yours-leave {
+  to {
+    opacity: 0;
+    transform: translateY(20px) scale(0.985);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yours--leaving {
+    animation: yours-leave-quiet 240ms ease forwards;
+  }
+}
+
+@keyframes yours-leave-quiet {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (pointer: coarse) {
+  .yours__hold {
+    display: none;
+  }
+  .yours__close {
+    width: 40px;
+    height: 40px;
+    margin: -12px -12px -12px 0;
+  }
 }
 
 .yours__item {
@@ -1543,6 +1658,15 @@ button:disabled {
   margin-top: var(--space-4);
 }
 
+/* /about opens with this section under the top row. The top row already
+   sets the page, so no rule above and less air; the docs band below draws
+   the next rule. */
+.how--page {
+  border-top: 0;
+  padding-top: var(--space-48);
+  padding-bottom: var(--space-64);
+}
+
 .how__cta {
   display: flex;
   flex-wrap: wrap;
@@ -2007,23 +2131,29 @@ button:disabled {
   color: var(--ink);
 }
 
-/* /docs. The legal shell plus a sticky contents rail and tables. */
-.docs__layout {
-  display: grid;
-  grid-template-columns: 200px minmax(0, 720px);
-  gap: var(--space-48);
-  align-items: start;
-  justify-content: center;
+/* The docs band on /about. A rule under the how section, then the how
+   grid's two columns again so the page reads as one ledger: the sticky
+   contents rail sits under the head, the reading column under the cards. */
+.about__docs {
+  padding-top: var(--space-48);
+  border-top: var(--divider);
 }
 
+.docs__layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 3fr) 9fr;
+  gap: var(--space-48);
+  align-items: start;
+}
+
+/* The reading column keeps the legal width; the band supplies the air. */
 .docs__body {
-  margin-top: var(--space-48);
+  margin-top: 0;
 }
 
 .docs__toc {
   position: sticky;
   top: var(--space-32);
-  margin-top: var(--space-48);
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
@@ -2044,7 +2174,7 @@ button:disabled {
   color: var(--ink);
 }
 
-.docs .legal__section {
+.about .legal__section {
   scroll-margin-top: var(--space-24);
 }
 
@@ -2096,10 +2226,12 @@ button:disabled {
   white-space: nowrap;
 }
 
-@media (max-width: 900px) {
+/* The rail stacks at the same width the how head does, so the two halves
+   of /about fold together: contents as a wrapped row, then the column. */
+@media (max-width: 1100px) {
   .docs__layout {
     grid-template-columns: minmax(0, 1fr);
-    gap: 0;
+    gap: var(--space-32);
   }
 
   .docs__toc {
@@ -2107,15 +2239,10 @@ button:disabled {
     flex-direction: row;
     flex-wrap: wrap;
     gap: var(--space-8) var(--space-16);
-    margin-top: var(--space-32);
   }
 
   .docs__toc p {
     width: 100%;
-  }
-
-  .docs__body {
-    margin-top: var(--space-32);
   }
 }
 

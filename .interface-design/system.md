@@ -41,6 +41,10 @@ Breakpoints: 1100 head above cards, 800 cards in one column, 520 numbers stack. 
 
 A dotted (light) or hairline (dark) rule on top, padding 24 above, 40 below the thing before it. Left: an 88px mono label. Right: the content. Used twice under the step cards: link chips and number pairs. Good for any "footnotes to a section" moment.
 
+### Ruled band on the same columns (`/about`, `.about__docs`, `.docs__layout`)
+
+When a page continues past a two column section, keep the columns. `/about` runs the how grid (`minmax(240px, 3fr) 9fr`, gap 48) and then a band with a rule on top, padding 48, on the same columns: a sticky mono contents rail (`top: 32`) under the head, a 720px reading column under the cards. The band head is a mono label, a heading-lg, a mono date line, and a muted subheading. One breakpoint for both halves (1100) so the rail folds into a wrapped row exactly when the head stacks. A section that opens a page (`.how--page`) drops its top rule and takes 48 above; the top row already opens the page.
+
 ### Link chips (`.how__link`)
 
 Mono, 7 by 12 padding, hairline border, pill radius, arrow glyph at 11px. Hover and focus invert to ink on `--on-dark`. Use for a row of outbound docs links. Every outbound anchor is `target="_blank" rel="noreferrer"`; internal routes use `Link`.

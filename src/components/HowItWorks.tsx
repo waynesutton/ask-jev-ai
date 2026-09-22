@@ -12,6 +12,10 @@ import { Link } from "./Link";
 type Props = {
   jev: boolean;
   provider: "typesafe" | "gateway" | null;
+  // "home" is the section under the wall. "about" opens /about: the heading
+  // is the page's h1, the pill scrolls to the docs band under it, and the
+  // rule above the section goes since the top row already opens the page.
+  variant?: "home" | "about";
 };
 
 // Every outbound link the section uses, in one place.
@@ -34,7 +38,12 @@ const PICKED = "explain" as const;
 
 // Head on the left, three step cards on the right, then two ruled rows:
 // the stack as link chips, and the numbers the server enforces.
-export function HowItWorks({ jev, provider }: Props) {
+export function HowItWorks({ jev, provider, variant = "home" }: Props) {
+  const about = variant === "about";
+  // Heading levels follow the page: h2 and h3 under the home h1, h1 and h2
+  // on /about where this section is the top of the page.
+  const Heading = about ? "h1" : "h2";
+  const titleTag = about ? "h2" : "h3";
   const routeCount = ROUTE_KEYS.length;
   // "google/gemini..." → "google". Counted so the copy tracks the table.
   const providerCount = new Set(
@@ -44,21 +53,29 @@ export function HowItWorks({ jev, provider }: Props) {
   const direct = jev && provider === "typesafe";
 
   return (
-    <section className="section how" id="how">
+    <section className={"section how" + (about ? " how--page" : "")} id="how">
       <div className="wrap">
         <div className="how__grid">
           <div className="how__head">
             <p className="label">A demo of Jev and Convex</p>
-            <h2 className="heading-lg">How it works.</h2>
+            <Heading className="heading-lg">How it works.</Heading>
             <p className="subheading muted">
               Type a question. Jev reads it and answers yes, no, or it depends
               in about 100 milliseconds. Sign in and Jev also picks a model; the
               answer streams through the Convex AI Gateway into every open tab.
             </p>
             <div className="how__cta">
-              <Link className="pill" href="/docs">
-                Read the docs
-              </Link>
+              {/* On /about the docs sit under this section, so the pill is a
+                  plain anchor and the browser scrolls. On home it routes. */}
+              {about ? (
+                <a className="pill" href="#docs">
+                  Read the full docs
+                </a>
+              ) : (
+                <Link className="pill" href="/about#docs">
+                  Read the docs
+                </Link>
+              )}
               <a
                 className="ghost"
                 href={DOCS.gateway}
@@ -73,6 +90,7 @@ export function HowItWorks({ jev, provider }: Props) {
           <ol className="how__steps">
             <Step
               n="01"
+              titleTag={titleTag}
               title="Ask. Jev judges."
               href={direct ? DOCS.typesafe : DOCS.decisions}
               linkText={direct ? "Jev at TypeSafe" : "Decisions with Jev"}
@@ -90,6 +108,7 @@ export function HowItWorks({ jev, provider }: Props) {
             </Step>
             <Step
               n="02"
+              titleTag={titleTag}
               title="Jev picks the lane."
               href={DOCS.gateway}
               linkText="Models on the gateway"
@@ -107,6 +126,7 @@ export function HowItWorks({ jev, provider }: Props) {
             </Step>
             <Step
               n="03"
+              titleTag={titleTag}
               title="The answer streams to every tab."
               href={DOCS.realtime}
               linkText="Realtime in Convex"
@@ -169,6 +189,7 @@ export function HowItWorks({ jev, provider }: Props) {
 type StepProps = {
   n: string;
   title: string;
+  titleTag: "h2" | "h3";
   body: ReactNode;
   href: string;
   linkText: string;
@@ -176,7 +197,15 @@ type StepProps = {
 };
 
 // One card: the stage on top, then number, title, copy, and one link out.
-function Step({ n, title, body, href, linkText, children }: StepProps) {
+function Step({
+  n,
+  title,
+  titleTag: Title,
+  body,
+  href,
+  linkText,
+  children,
+}: StepProps) {
   return (
     <li className="card how__step">
       <div className="how__stage" aria-hidden="true">
@@ -184,7 +213,7 @@ function Step({ n, title, body, href, linkText, children }: StepProps) {
       </div>
       <div className="how__copy">
         <p className="label">{n}</p>
-        <h3 className="body how__title">{title}</h3>
+        <Title className="body how__title">{title}</Title>
         <p className="body-sm muted">{body}</p>
         <a
           className="label how__out"

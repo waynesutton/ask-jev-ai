@@ -34,7 +34,7 @@ export function usePath(): string {
 export type Route =
   | { name: "home" }
   | { name: "admin" }
-  | { name: "docs" }
+  | { name: "about" }
   | { name: "terms" }
   | { name: "privacy" }
   | { name: "signIn" }
@@ -48,11 +48,11 @@ export type Route =
 // typo does not quietly show the wall. Profiles live at /:handle, matched
 // last, after every page; the server refuses to allocate a handle that
 // spells a page (RESERVED_HANDLES in convex/lib/auth.ts), so the two can
-// never collide. /u/:handle is the old address and still resolves.
+// never collide. /u/:handle and /docs are old addresses and still resolve.
 export function parseRoute(path: string): Route {
   if (path === "/") return { name: "home" };
   if (path === "/admin") return { name: "admin" };
-  if (path === "/docs") return { name: "docs" };
+  if (path === "/about" || path === "/docs") return { name: "about" };
   if (path === "/terms") return { name: "terms" };
   if (path === "/privacy") return { name: "privacy" };
   if (path === "/sign-in") return { name: "signIn" };

@@ -36,8 +36,8 @@ const Profile = lazy(() =>
 const SignIn = lazy(() =>
   import("./components/SignIn").then((m) => ({ default: m.SignIn })),
 );
-const Docs = lazy(() =>
-  import("./components/Docs").then((m) => ({ default: m.Docs })),
+const About = lazy(() =>
+  import("./components/About").then((m) => ({ default: m.About })),
 );
 const Terms = lazy(() =>
   import("./components/Legal").then((m) => ({ default: m.Terms })),
@@ -48,7 +48,7 @@ const Privacy = lazy(() =>
 
 // Client side routes. Static hosting serves index.html for every path, so
 // the pathname decides what renders. /admin is only linked for the admin;
-// /terms and /privacy are linked from the colophon.
+// /about, /terms, and /privacy are linked from the colophon.
 export default function App() {
   const route = useRoute();
   if (route.name === "home") return <Home />;
@@ -56,7 +56,7 @@ export default function App() {
   return (
     <Suspense fallback={<PageLoading />}>
       {route.name === "admin" && <Admin />}
-      {route.name === "docs" && <Docs />}
+      {route.name === "about" && <About />}
       {route.name === "terms" && <Terms />}
       {route.name === "privacy" && <Privacy />}
       {route.name === "signIn" && <SignIn mode="in" />}
@@ -124,11 +124,12 @@ function Home() {
 
         <div className="wrap hero__top label">
           <span className="hero__left">
-            {/* Anchor nav to the two sections below the fold. */}
+            {/* Anchor nav to the two sections below the fold, then About:
+                the same How it works section with the full docs under it. */}
             <nav className="hero__nav" aria-label="Sections">
               <a href="#wall">The wall</a>
               <a href="#how">How it works</a>
-              <Link href="/docs">Docs</Link>
+              <Link href="/about">About</Link>
               {/* Only rendered for the signed in admin. Visitors never see it. */}
               {me?.admin && <Link href="/admin">Admin</Link>}
             </nav>
@@ -241,7 +242,7 @@ function Home() {
         </a>
         <span>Demo app not associated with TypeSafe AI</span>
         <nav className="colophon__links" aria-label="Legal">
-          <Link href="/docs">Docs</Link>
+          <Link href="/about">About</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/privacy">Privacy</Link>
           <a

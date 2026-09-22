@@ -4,6 +4,20 @@ All notable changes to this project are documented here. Format follows Keep a C
 
 ## [Unreleased]
 
+### Changed (2026-09-22, Yours is one card that clears itself)
+
+- Yours under the composer shows your newest ask only, not the last three. The card has a head row with the "Yours" label and an X (`Close this card`, 28px hit area, `--ash` on hover, the global focus ring on keyboard). A new ask replaces the card; the X closes it; the closed id goes to `localStorage` (`jev:yours-dismissed`) so a reload does not bring it back. State still hides it when storage is blocked.
+- Signed in, the card stays until you close it or ask again. A note under it reads "Kept in your history with every ask before it." and links to `/me#me-asks`.
+- Signed out, a live ask is already on the wall, so the block leaves on its own. A 1.5px hairline under the card drains from the right over four seconds (`yours-drain`, duration set from `FADE_MS` in the component), then the whole block steps 20px toward the wall, shrinks a hair, and fades (`yours-leave`, 480ms). Hover or focus anywhere on the block pauses the clock; the note says so on pointer devices and hides that line on touch. `prefers-reduced-motion` gets a 240ms opacity fade and no travel. Held back and failed asks do not fade: one never reaches the wall, the other has Retry.
+- `Latest` is its own component keyed on the message id, so a new ask mounts fresh with a full drain and no leftover leave state. Animation end handlers check the animation name, since the confidence bars and the judging dot end their own animations inside the card.
+- Checked on dev: visitor card drains and leaves at about 4.5s, the id lands in storage, the X works on both paths, a signed in card sits past six seconds with the history link and no hairline, and the linked section on `/me` holds the ask. Throwaway account deleted through `/me` (08:37).
+
+### Changed (2026-09-22, Docs becomes About, one page top to bottom)
+
+- `/about` replaces `/docs`. The page opens with the same How it works section the home page renders, then a ruled docs band with the long version under it. The band sits on the how grid's two columns (`minmax(240px, 3fr) 9fr`): the sticky contents rail under the head, the 720px reading column under the cards, so the page reads as one ledger. Band head: mono label "Docs", "How it works, in full.", last updated, the lede. The rail stacks into a wrapped row at 1100px, where the how head stacks too.
+- `HowItWorks` takes a `variant`. On `/about` the heading is the page h1, step titles are h2, the pill reads "Read the full docs" and is a plain `#docs` anchor, and `how--page` drops the rule above the section since the top row already opens the page. Home is unchanged in look: h2 and h3, the pill still reads "Read the docs" and now routes to `/about#docs`.
+- Hero nav and colophon say About and go to `/about`. `/docs` still resolves: the page rewrites the address to `/about#docs` and lands on the band. A client side push does not scroll to a hash on its own and the router scrolls to the top first, so `About` scrolls to `location.hash` once it mounts. The docs copy "This page is the long version of How it works" now points at the section above. Last updated on the band moves to September 22. `Docs.tsx` renamed `About.tsx`; the `.docs__*` classes stay for the band. Checked on dev at 1440, 1024, and 375, both landing paths, no horizontal overflow (08:30).
+
 ### Added (2026-09-22, design system notes)
 
 - `.interface-design/system.md`. The two skins and their token contract, the surface shift depth strategy (no shadows, move one step on the token ladder instead), and the reusable patterns from the How it works build with their measurements: step cards with a 184px stage and a 24px bleed, ruled rows with an 88px mono label, link chips, number pairs, the verdict chip and its quiet tag. Also the copy rules for UI. Agents read it before UI work so the next section matches the last one (08:05).

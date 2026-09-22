@@ -1,5 +1,7 @@
 import { useEffect, type ReactNode } from "react";
+import { useQuery } from "convex/react";
 import { ArrowLeft, ArrowUpRight } from "@phosphor-icons/react";
+import { api } from "../../convex/_generated/api";
 import {
   MAX_OPEN_CHARS,
   MAX_OPEN_WORDS,
@@ -24,15 +26,18 @@ import {
 } from "../../convex/questions";
 import { formatCount } from "../lib/format";
 import { CLOSE_CALL } from "./JevAnswers";
+import { HowItWorks } from "./HowItWorks";
 import { Link } from "./Link";
 import { ThemeToggle } from "./ThemeToggle";
 
-// /docs. The long version of How it works, for a person who wants every
-// rule and every number. Every figure on this page is imported from the
-// module that enforces it, so the docs cannot drift from the code. Nothing
-// here describes moderation tooling; that is not part of using the app.
+// /about. One page, top to bottom: the same How it works section the home
+// page shows, then a ruled docs band with the long version for a person who
+// wants every rule and every number. Every figure in the docs is imported
+// from the module that enforces it, so the copy cannot drift from the code.
+// Nothing here describes moderation tooling; that is not part of using the
+// app. /docs is the old address and lands on the docs band.
 
-const UPDATED = "September 19, 2026";
+const UPDATED = "September 22, 2026";
 const REPO = "https://github.com/waynesutton/ask-jev-ai";
 
 type Section = { id: string; title: string; body: ReactNode };
@@ -78,10 +83,23 @@ function Table({
   );
 }
 
-export function Docs() {
+export function About() {
+  // Where the judge runs, for the how section's provider dependent links.
+  const gate = useQuery(api.stats.gate);
+
   useEffect(() => {
     const previous = document.title;
-    document.title = "Docs · Ask Jev";
+    document.title = "About · Ask Jev";
+    // /docs was the long version's own page. Move the address to the docs
+    // band so the bar shows the current one and a reload lands there too.
+    if (window.location.pathname.replace(/\/+$/, "") === "/docs") {
+      window.history.replaceState(null, "", "/about#docs");
+    }
+    // A client side push does not scroll to the hash on its own, and the
+    // router scrolls to the top before this page mounts. Land on the
+    // target once it exists.
+    const hash = window.location.hash.slice(1);
+    if (hash) document.getElementById(hash)?.scrollIntoView();
     return () => {
       document.title = previous;
     };
@@ -115,9 +133,9 @@ export function Docs() {
             under your ask through the Convex AI Gateway.
           </p>
           <p className="body">
-            This page is the long version of{" "}
-            <Link href="/#how">How it works</Link>. Every number on it is read
-            from the same constants the server enforces.
+            This is the long version of <a href="#how">How it works</a> above.
+            Every number on it is read from the same constants the server
+            enforces.
           </p>
         </>
       ),
@@ -719,7 +737,7 @@ export function Docs() {
   ];
 
   return (
-    <main className="legal docs">
+    <main className="legal about">
       <div className="wrap hero__top label">
         <Link className="admin__back" href="/">
           <ArrowLeft size={11} aria-hidden="true" /> Back to the wall
@@ -727,43 +745,55 @@ export function Docs() {
         <ThemeToggle />
       </div>
 
-      <div className="wrap docs__layout">
-        <nav className="docs__toc label" aria-label="On this page">
-          <p className="muted">On this page</p>
-          {sections.map((s) => (
-            <a key={s.id} href={`#${s.id}`}>
-              {s.title}
-            </a>
-          ))}
-        </nav>
+      {/* The same section as home, with this page's h1 and a pill that
+          scrolls to the docs band. */}
+      <HowItWorks
+        jev={gate?.jev ?? false}
+        provider={gate?.provider ?? null}
+        variant="about"
+      />
 
-        <article className="legal__body docs__body">
-          <header className="legal__head">
-            <p className="label">Ask Jev</p>
-            <h1 className="heading-lg">How it works, in full.</h1>
-            <p className="label">Last updated {UPDATED}</p>
-            <p className="subheading muted">
-              What happens between the Ask button and the wall, every rule that
-              applies, and every number the app runs on. Read top to bottom or
-              jump to a section.
-            </p>
-          </header>
+      {/* The docs band. A rule, then the how grid's two columns again: the
+          contents rail under the head, the sections under the cards. */}
+      <section className="about__docs" id="docs">
+        <div className="wrap docs__layout">
+          <nav className="docs__toc label" aria-label="On this page">
+            <p className="muted">On this page</p>
+            {sections.map((s) => (
+              <a key={s.id} href={`#${s.id}`}>
+                {s.title}
+              </a>
+            ))}
+          </nav>
 
-          {sections.map((s) => (
-            <section className="legal__section" key={s.id} id={s.id}>
-              <h2 className="heading-sm">{s.title}</h2>
-              {s.body}
-            </section>
-          ))}
+          <article className="legal__body docs__body">
+            <header className="legal__head">
+              <p className="label">Docs</p>
+              <h2 className="heading-lg">How it works, in full.</h2>
+              <p className="label">Last updated {UPDATED}</p>
+              <p className="subheading muted">
+                What happens between the Ask button and the wall, every rule
+                that applies, and every number the app runs on. Read top to
+                bottom or jump to a section.
+              </p>
+            </header>
 
-          <footer className="legal__foot label">
-            <Link href="/">The wall</Link>
-            <Link href="/terms">Terms</Link>
-            <Link href="/privacy">Privacy</Link>
-            <Out href={REPO}>Source</Out>
-          </footer>
-        </article>
-      </div>
+            {sections.map((s) => (
+              <section className="legal__section" key={s.id} id={s.id}>
+                <h3 className="heading-sm">{s.title}</h3>
+                {s.body}
+              </section>
+            ))}
+
+            <footer className="legal__foot label">
+              <Link href="/">The wall</Link>
+              <Link href="/terms">Terms</Link>
+              <Link href="/privacy">Privacy</Link>
+              <Out href={REPO}>Source</Out>
+            </footer>
+          </article>
+        </div>
+      </section>
     </main>
   );
 }

@@ -58,9 +58,9 @@ The whole policy lives in one file: `convex/questions.ts`. The lanes and their m
 - Open question line for visitors. Jev's own verdict on the ask tells the app when a three to fifteen word question was not a yes or no, and the card says so where the answer would sit, on the wall, in Yours, and on the ask page, with a sign in link and a way back to the box to ask a yes or no. Signed in readers see a quiet line explaining why the anonymous ask has no answer
 - Your account page: history with filters, per ask visibility, archive, delete, profile with photo and links, public or private profile, change password, export as JSON, delete account
 - Profiles at `/handle`, public or private. User number, joined date, GitHub, LinkedIn, X, then usage: asks and answers, streaks, a year of asks as a heatmap, how Jev replied, the models Jev picked and why, tokens and asks over thirty days, top topics, and the account's wall asks. Owners see their private counts; nobody else does
-- `/docs`, the long version of how it works. Every number on the page is imported from the constant the server enforces
+- `/about`, the How it works section again with the full docs under it in a ruled band. Every number on the page is imported from the constant the server enforces. `/docs` still resolves and lands on the band
 - The fold: two bulleted lists on the left (what a visitor gets, what signing in lifts), a composer that grows with the text and holds a fixed Ask pill in its bottom bar, and the orange counter on the right. Every number in the lists is imported from the constant the server enforces
-- The Convex AI Gateway is named where an answer comes from: the top row credit, the fold, How it works, and `/docs`. Convex holds the provider keys; this app stores none
+- The Convex AI Gateway is named where an answer comes from: the top row credit, the fold, How it works, and `/about`. Convex holds the provider keys; this app stores none
 - Tooltips where a term needs one: the toggle, the tags, the model line, the cost rows
 - Light and dark skins, stored per browser, applied before first paint
 - Server only held topics list read from an environment variable, never in the repo or the bundle
