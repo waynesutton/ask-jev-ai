@@ -707,17 +707,32 @@ button:disabled {
 }
 
 /* "for real": the small print under the promise, set flush right. Same
-   face, one seventh the size, no tracking games. Sits close enough to
+   face, about a third the size, no tracking games. Sits close enough to
    read as part of the headline, not as a subtitle. */
 .display__tag {
   display: block;
   text-align: right;
-  font-size: 0.22em;
+  font-size: 0.32em;
   line-height: 1;
   letter-spacing: 0.01em;
-  margin-top: 0.22em;
+  margin-top: 0.18em;
   padding-right: 0.1em;
   color: var(--ink);
+}
+
+/* For visitors the line reads "for real after login" and goes to sign up.
+   Same type, no decoration at rest; an underline on hover says it is a
+   link without changing how the headline looks. */
+.display__tag--link {
+  text-decoration: none;
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.12em;
+  transition: text-decoration-color 160ms ease;
+}
+
+.display__tag--link:hover,
+.display__tag--link:focus-visible {
+  text-decoration: underline;
 }
 
 /* Lanes | the box | the count. The box takes the most room; the lanes are a
@@ -2269,6 +2284,17 @@ button:disabled {
 
 .pill--small { padding: var(--space-8) var(--space-16); font-size: var(--text-body-sm); }
 .account__auth { display: inline-flex; align-items: center; gap: var(--space-8); }
+
+/* Sign up (ghost) and Sign in (pill) share one box. The ghost carries a
+   1.5px border, so the pill gets the same border in its own ink colour;
+   without it the filled pill sits 3px shorter than the outline next to it. */
+.hero__top a.account__signin,
+.hero__top a.account__signup {
+  border: 1.5px solid var(--ink);
+  padding: var(--space-8) var(--space-16);
+  font-size: var(--text-body-sm);
+  line-height: 1;
+}
 .auth__providers { display: grid; gap: 10px; }
 .auth__provider { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 46px; width: 100%; }
 .auth__divider { display: flex; align-items: center; gap: 12px; }
@@ -2276,8 +2302,8 @@ button:disabled {
 .oauth-error { margin: 16px auto; padding: 16px; max-width: 520px; border: 1px solid currentColor; }
 @media (max-width: 520px) {
   .account__auth { gap: 8px; }
-  .account__signin { padding: 8px 12px; }
-  .account__signup { padding: 4px 8px; }
+  .hero__top a.account__signin,
+  .hero__top a.account__signup { padding: 8px 12px; }
 }
 
 .account__btn {
@@ -3240,15 +3266,26 @@ button.pf__vis:hover:not(:disabled) {
   flex-wrap: wrap;
 }
 
+/* The line is allowed to wrap. "Sign in to ask follow up questions" is 34
+   mono characters; Safari sets the face a touch wider and phones bump the
+   size, so a nowrap line ran past the card edge. The icon pins to the
+   first line instead of centring across two. */
 .followup__link {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 5px;
+  min-width: 0;
   color: var(--ink);
   text-decoration: underline dotted;
   text-underline-offset: 3px;
   text-decoration-color: var(--faint);
-  white-space: nowrap;
+}
+
+.followup__link svg {
+  flex: none;
+  /* Half the leading, so a 12px glyph sits on the first line's centre. */
+  margin-top: 0.2em;
+  margin-top: calc((1lh - 12px) / 2);
 }
 
 .followup__link:hover,

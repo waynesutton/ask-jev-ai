@@ -315,10 +315,11 @@ export function Docs() {
       body: (
         <>
           <p className="body">
-            Sign in with Google, GitHub, or email and password through Convex Auth.
-            A verified provider email links to your existing account and keeps your asks and handle. Each
-            account gets a sequential user number, a handle made from the email,
-            and a profile. Signed in, the word rules change.
+            Sign in with Google, GitHub, or email and password through Convex
+            Auth. A verified provider email links to your existing account and
+            keeps your asks and handle. Each account gets a sequential user
+            number, a handle made from the email, and a profile. Signed in, the
+            word rules change.
           </p>
           <ul className="body legal__list">
             <li>
@@ -422,12 +423,23 @@ export function Docs() {
             <b>Ask a follow up</b> link. Signed out, it reads{" "}
             <b>Sign in to ask follow up questions</b> and brings you back to the
             ask once you are in. Follow ups on someone else's ask, or on a
-            visitor's yes or no ask, open a thread only you can see. The model
-            Jev picked for that ask answers, with the ask and Jev's verdict as
-            context. Those threads list under Follow ups on{" "}
-            <Link href="/me">/me</Link>. Follow ups on your own ask stay in its
-            public thread; once you have sent one, the wall card grows a{" "}
-            <b>Read the thread</b> link.
+            visitor's yes or no ask, open a thread only you and the admin can
+            read. The asker never sees it. The model Jev picked for that ask
+            answers, with the ask and Jev's verdict as context. Those threads
+            list under Follow ups on <Link href="/me">/me</Link>.
+          </p>
+          <p className="body">
+            Who can read a thread follows one rule:{" "}
+            <b>a thread follows its ask</b>. Your follow ups on your own wall
+            ask are public, like the ask; once you have sent one, the wall card
+            grows a <b>Read the thread</b> link. Your follow ups on a private
+            ask are private. Make a wall ask private on{" "}
+            <Link href="/me">/me</Link> and its thread goes with it. Everyone
+            else's follow ups on your ask are private to them. There is no
+            public option for those: follow ups skip Jev's judging and the
+            wall's word gate, so they stay off the wall. The composer and the
+            tooltip on every <b>Ask a follow up</b> link say which case applies
+            before you type.
           </p>
           <p className="body">
             Answers cost real money, so every account carries an answer budget
@@ -634,8 +646,8 @@ export function Docs() {
               [
                 "Judge",
                 <>
-                  Jev, TypeSafe's judgment model, through the Convex AI
-                  Gateway Decisions endpoint, TypeSafe direct as the fallback.{" "}
+                  Jev, TypeSafe's judgment model, through the Convex AI Gateway
+                  Decisions endpoint, TypeSafe direct as the fallback.{" "}
                   <Out href="https://docs.typesafe.ai">docs.typesafe.ai</Out>
                 </>,
               ],

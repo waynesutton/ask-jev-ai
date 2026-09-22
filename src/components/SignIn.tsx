@@ -54,8 +54,9 @@ export function SignIn({ mode }: { mode: "in" | "up" }) {
               <p className="body-sm muted">
                 An account lets you ask longer, open questions and get a short
                 answer from a model Jev picks. Follow up on any ask on the
-                wall in a thread only you see. Keep asks private or put them
-                on the wall. {USER_POSTS_PER_MINUTE} a minute instead of five.
+                wall in a thread only you and the admin can read. Keep asks
+                private or put them on the wall. {USER_POSTS_PER_MINUTE} a
+                minute instead of five.
                 {gate?.signupOpen && (
                   <>
                     {" "}

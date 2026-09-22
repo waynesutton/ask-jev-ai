@@ -175,7 +175,15 @@ function Home() {
               "Ask Jev anything, for real" to a screen reader. */}
           <h1 className="display">
             Ask Jev anything,
-            <span className="display__tag">for real</span>
+            {/* Visitors see the condition and a way in. Accounts see the
+                plain promise. Same face and size either way. */}
+            {me === null ? (
+              <Link className="display__tag display__tag--link" href="/sign-up">
+                for real after login
+              </Link>
+            ) : (
+              <span className="display__tag">for real</span>
+            )}
           </h1>
 
           <div className="hero__grid">
@@ -243,6 +251,14 @@ function Home() {
           >
             Source <ArrowUpRight size={11} aria-hidden="true" />
           </a>
+          {/* Support goes to the repo's issue tracker. */}
+          <a
+            href="https://github.com/waynesutton/ask-jev-ai/issues"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Support <ArrowUpRight size={11} aria-hidden="true" />
+          </a>
         </nav>
       </div>
 
@@ -281,7 +297,7 @@ function AccountMenu() {
     return (
       <span className="account__auth">
         <Tooltip tip="Google, GitHub, or email. Free. 20 asks a minute, model answers, a profile">
-          <Link className="ghost ghost--small account__signup" href="/sign-up">Sign up</Link>
+          <Link className="ghost account__signup" href="/sign-up">Sign up</Link>
         </Tooltip>
         <Tooltip tip="Ask longer questions, get model answers, keep a history">
           <Link className="pill pill--small account__signin" href="/sign-in">Sign in</Link>

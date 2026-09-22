@@ -637,7 +637,8 @@ const PRIVACY: Array<Section> = [
       <>
         <b>Google and GitHub</b> handle sign in when you choose their buttons.
         The provider receives the sign in request and returns basic identity
-        information to Convex Auth. We request no access to your mail or repositories.
+        information to Convex Auth. We request no access to your mail or
+        repositories.
       </>,
       <>
         <b>Convex</b> (<Out href="https://convex.dev">convex.dev</Out>) stores
@@ -689,10 +690,12 @@ const PRIVACY: Array<Section> = [
         repository. Treat every public ask as public the moment you send it.
       </>,
       <>
-        Private asks do not appear on the wall, in search, on your profile, or
-        on a public page. Their threads are visible only to you. Follow up
-        threads you open on other people's asks are visible only to you as well.
-        The asker cannot see them.
+        A thread follows its ask. Your follow ups on your own public ask are
+        public, like the ask, and anyone reading it can read them. Private asks
+        do not appear on the wall, in search, on your profile, or on a public
+        page. Their threads are visible only to you. Follow up threads you open
+        on other people's asks are visible only to you as well. The asker cannot
+        see them.
       </>,
       <>
         The admin can see everything: every ask in every status, public or

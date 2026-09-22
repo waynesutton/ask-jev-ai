@@ -4,6 +4,27 @@ All notable changes to this project are documented here. Format follows Keep a C
 
 ## [Unreleased]
 
+### Changed (2026-09-22, who can read a thread, said before you type)
+
+- One rule, stated everywhere it matters: a thread follows its ask. The asker's follow ups on a wall ask are public, like the ask; on a private ask they are private; everyone else's follow ups are private to them and the admin. `FollowUp.tsx` takes `visibility` and `author` from the card and `laneTip` picks the tooltip for the signed in verb: owner of a public ask, owner of a private ask, or another viewer. The visitor tip now says the thread is one only you can read.
+- `/a/:id`: the asker's thread gets a head with a title ("Your thread" or "The asker's thread") and a `{visibility} thread` tag with a tooltip. The composer note under it says public or private before the first character. The side thread copy reads "only you and the admin can read" in place of "only you see".
+- `/docs` gets a paragraph on the rule, why other people's follow ups have no public option (they skip Jev and the word gate, so they stay off the wall), and where the tooltips say which case applies. Privacy adds the sentence that your follow ups on your own public ask are public. Two paragraphs rewrapped, no copy change.
+- The sign up note and the README follow up bullet say the same thing in the same words: a thread on someone else's ask is one only you and the admin can read, and a thread follows its ask. Checked on dev with two throwaway accounts, then deleted them (07:26).
+
+### Fixed (2026-09-22, follow up link ran past the card in Safari)
+
+- `.followup__link` forbade wrapping. "Sign in to ask follow up questions" is 34 mono characters plus the icon; Safari sets DM Mono a little wider than Chrome and phones bump the mono a size, so the line poked out of the wall card. The link now wraps like any other line, the chat icon pins to the first line (`margin-top: calc((1lh - 12px) / 2)`, `0.2em` where `lh` is not supported), and the second line indents under the text. Checked at 390 and 320px (07:09).
+
+### Added (2026-09-22, support link)
+
+- `Support` in the home colophon after Source, opening the repo's issue tracker at `https://github.com/waynesutton/ask-jev-ai/issues` in a new tab. Same mono line, same dot separators, same arrow glyph as the other outbound links (07:06).
+
+### Changed (2026-09-22, top row pills and the "for real" line)
+
+- Sign up and Sign in in the top row are now the same box. Sign up was a `ghost--small` (4/12 padding, caption type, 1.5px border) beside a `pill--small` (8/16, body-sm, no border), so the filled pill sat 3px shorter and narrower than the outline next to it. One rule on `account__signup` and `account__signin` sets the border, padding, and type for both; the pill's border is its own ink so the fill looks unchanged. The 520px override that gave the two different padding now sets 8/12 on both (07:02).
+- The "for real" line under the headline grew from 0.22em to 0.32em of the display size, margin pulled in a touch, so it reads as part of the joke rather than fine print. Same face, same colour, still flush right under the comma.
+- Visitors now read `for real after login`, and the line is a link to `/sign-up`. Same type and colour at rest, an underline on hover and focus. Signed in accounts see the plain `for real`. Still one h1, so a screen reader hears the whole promise as one heading.
+
 ### Fixed (2026-09-22, canonical and share card URLs)
 
 - `index.html` canonical, `og:url`, `og:image`, and `twitter:image` now point at `https://www.askjev.ai` instead of the raw Convex site host. The custom domain has been live since the domain work and the apex redirects to www, so search engines and link previews were being told the wrong home. Ships with the next `npm run deploy` (03:30).

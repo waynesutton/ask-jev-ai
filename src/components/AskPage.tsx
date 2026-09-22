@@ -167,9 +167,28 @@ function Threads({ ask, me }: { ask: Ask; me: ReturnType<typeof useMe> }) {
     <>
       {/* The asker's thread. The model's first answer is on the card, so
           the list starts at the first follow up. For the asker this is
-          also where their composer sits. */}
+          also where their composer sits. The head says who can read it:
+          the thread follows the ask, so a wall ask has a public thread
+          and a private ask a private one. Said here, before the asker
+          types, not after. */}
       {ask.threadId && (
-        <section className="thread" aria-label="The asker's thread">
+        <section className="thread" aria-labelledby="asker-thread-title">
+          <div className="thread__head">
+            <h2 className="subheading" id="asker-thread-title">
+              {lane?.kind === "own" ? "Your thread" : "The asker's thread"}
+            </h2>
+            <Tooltip
+              tip={
+                ask.visibility === "private"
+                  ? "Private, like the ask. Only you and the admin can read this thread."
+                  : lane?.kind === "own"
+                    ? "Public, like your ask. Anyone reading it can read your follow ups. Make the ask private on /me and the thread goes with it."
+                    : "The asker's follow ups with the model. Public, like the ask."
+              }
+            >
+              <span className="tag">{ask.visibility} thread</span>
+            </Tooltip>
+          </div>
           <ThreadList
             messageId={ask._id}
             threadId={ask.threadId}
@@ -186,7 +205,11 @@ function Threads({ ask, me }: { ask: Ask; me: ReturnType<typeof useMe> }) {
             <FollowUpForm
               messageId={ask._id}
               paused={paused}
-              note="Follow ups stay in this thread and count toward your asks"
+              note={
+                ask.visibility === "private"
+                  ? "Private thread, like your ask. Follow ups count toward your asks."
+                  : "Public thread, like your ask. Follow ups count toward your asks."
+              }
             />
           )}
         </section>
@@ -218,13 +241,14 @@ function Threads({ ask, me }: { ask: Ask; me: ReturnType<typeof useMe> }) {
           ) : (
             <p className="body-sm muted">
               Ask why, ask what next. {modelLabel(lane.model)} answers with this
-              ask and Jev's verdict as context. Only you see this thread.
+              ask and Jev's verdict as context. Only you and the admin can read
+              this thread.
             </p>
           )}
           <FollowUpForm
             messageId={ask._id}
             paused={paused}
-            note="Only you see this thread. Follow ups count toward your asks."
+            note="Private thread. Follow ups count toward your asks."
           />
         </section>
       )}
@@ -237,7 +261,7 @@ function Threads({ ask, me }: { ask: Ask; me: ReturnType<typeof useMe> }) {
           </p>
           <p className="body-sm">
             Ask why, or what next. A model Jev picks answers with this ask as
-            context, in a thread only you see.
+            context, in a thread only you and the admin can read.
           </p>
           <Link
             className="pill pill--accent"
