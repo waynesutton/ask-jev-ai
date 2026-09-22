@@ -320,11 +320,11 @@ export function About() {
           </p>
           <p className="body">
             When Jev reads a visitor ask as an open question, one that wants
-            more than yes or no, the card says so where the answer would sit:
-            on the wall, under Yours, and on the ask page. It offers sign in,
-            where the same ask gets a model answer, or a way back to the box
-            to ask something Jev can settle. No extra call is made; the
-            verdict was already in the same response.
+            more than yes or no, the card says so where the answer would sit: on
+            the wall, under Yours, and on the ask page. It offers sign in, where
+            the same ask gets a model answer, or a way back to the box to ask
+            something Jev can settle. No extra call is made; the verdict was
+            already in the same response.
           </p>
         </>
       ),
@@ -706,7 +706,7 @@ export function About() {
               [
                 "Auth",
                 <>
-                  Convex Auth v2, email and password.{" "}
+                  Convex Auth v2 alpha. Google, GitHub, email and password.{" "}
                   <Out href="https://auth-v2.previews.convex.dev/getting-started">
                     Convex Auth
                   </Out>
@@ -728,8 +728,18 @@ export function About() {
             ]}
           />
           <p className="body">
-            The code is public at <Out href={REPO}>GitHub</Out>. This is a demo
-            app and is not associated with TypeSafe AI.
+            Ask Jev is open source. The whole app, backend and frontend, is on{" "}
+            <Out href={REPO}>GitHub</Out>: read it, run it, or open an issue.
+            Auth is{" "}
+            <Out href="https://auth-v2.previews.convex.dev/getting-started">
+              Convex Auth v2
+            </Out>
+            , still in alpha, and the rest of the backend is built from{" "}
+            <Out href="https://www.convex.dev/components">
+              Convex components
+            </Out>
+            , which are open source too. This is a demo app and is not
+            associated with TypeSafe AI.
           </p>
         </>
       ),
@@ -789,7 +799,7 @@ export function About() {
               <Link href="/">The wall</Link>
               <Link href="/terms">Terms</Link>
               <Link href="/privacy">Privacy</Link>
-              <Out href={REPO}>Source</Out>
+              <Out href={REPO}>Open source</Out>
             </footer>
           </article>
         </div>

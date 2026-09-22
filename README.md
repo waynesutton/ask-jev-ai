@@ -6,6 +6,16 @@ Sign in and you can ask Jev anything, for real. Up to sixty words, no word list,
 
 Live at [askjev.ai](https://www.askjev.ai).
 
+## Open source
+
+The whole app is in this repo: the Convex backend in `convex/`, the React app in `src/`, the product docs in `prds/`. Clone it, run it against your own deployment, or open an [issue](https://github.com/waynesutton/ask-jev-ai/issues).
+
+It is built almost entirely from open source Convex pieces:
+
+- [Convex Auth v2](https://auth-v2.previews.convex.dev/getting-started) (alpha, `npm i @convex-dev/auth@alpha`) for Google, GitHub, and email and password sign in
+- [Convex components](https://www.convex.dev/components): [Agent](https://www.convex.dev/components/agent), [Sharded Counter](https://www.convex.dev/components/sharded-counter), [Rate Limiter](https://www.convex.dev/components/rate-limiter), [Static Hosting](https://www.convex.dev/components/static-hosting)
+- [Convex AI Gateway](https://docs.convex.dev/ai-gateway/overview) (beta) for Jev and the model answers, so the app stores no provider keys
+
 ## Why this exists
 
 Most AI demos generate text. Jev does not. It reads a sentence and returns typed answers with probabilities: a choice, a yes or no, a score. That makes it usable as a primitive inside ordinary code rather than a chatbot bolted onto a page.
@@ -33,7 +43,7 @@ The whole policy lives in one file: `convex/questions.ts`. The lanes and their m
 | Backend and database | Convex. Queries, mutations, actions, scheduler, file storage, full text search index on the wall.                                                                                  | [convex.dev](https://convex.dev)                                                                                      |
 | Counters             | `@convex-dev/sharded-counter` for live, blocked, submitted, judged, token, and answer totals.                                                                                      | [Sharded Counter](https://www.convex.dev/components/sharded-counter)                                                  |
 | Rate limits          | `@convex-dev/rate-limiter`. Fixed window per IP, token bucket per session or per user, a budget per account for answers.                                                           | [Rate Limiter](https://www.convex.dev/components/rate-limiter)                                                        |
-| Auth                 | `@convex-dev/auth` v2 (alpha). Email and password for everyone; one email is the admin.                                                                                            | [Convex Auth](https://auth-v2.previews.convex.dev/getting-started)                                                    |
+| Auth                 | `@convex-dev/auth` v2 (alpha). Google, GitHub, or email and password for everyone; one email is the admin and keeps password only.                                                 | [Convex Auth](https://auth-v2.previews.convex.dev/getting-started)                                                    |
 | Hosting              | `@convex-dev/static-hosting`. The built Vite app is served from the Convex deployment.                                                                                             | [Static Hosting](https://www.convex.dev/components/static-hosting)                                                    |
 | Frontend             | React 19, Vite, TypeScript. Plain CSS with two skins on one set of tokens. A forty line router.                                                                                    | [react.dev](https://react.dev), [vite.dev](https://vite.dev)                                                          |
 | Icons and tooltips   | Phosphor icons, Radix Tooltip.                                                                                                                                                     | [phosphoricons.com](https://phosphoricons.com), [Radix](https://www.radix-ui.com/primitives/docs/components/tooltip)  |
@@ -51,7 +61,8 @@ The whole policy lives in one file: `convex/questions.ts`. The lanes and their m
 - Cost tracker: total spend, per message, projection to the goal, tokens in, a stopwatch since the run began, and time left at the observed pace
 - Full text search over the wall, backed by a Convex search index
 - Your newest ask under the box with status: judging, live, held, or failed with retry. One card with an X. Signed in it stays until you close it or ask again and links to your history on `/me`. Signed out, a live ask drains for four seconds, then slides toward the wall and fades; hover holds it. A visitor's ask on a held topic stays put with a sign in line: the same ask goes through signed in, judged and answered, blurred on the wall for everyone but you
-- Accounts with email and password. Twenty asks a minute instead of five, a sequential user number, a handle, and an avatar menu in the top row
+- Accounts with Google, GitHub, or email and password. Twenty asks a minute instead of five, a sequential user number, a handle, and an avatar menu in the top row. Sign up and sign in also sit on every public profile, and bring you back to it after
+- A visitor's ask on a held topic says why it was held and that the same ask goes through signed in
 - Model answers for signed in asks. Jev sorts the ask into one of four lanes, the lane's model answers through the Convex AI Gateway, and the card shows the model, the one line reason, latency, and cost. Each ask gets a page with a thread for follow ups
 - Follow up on any ask. Every card carries "Ask a follow up", or "Sign in to ask follow up questions" for visitors, which brings you back to the ask once you are in. A thread follows its ask: your own public ask continues in a public thread anyone can read, your own private ask in a private one, and making the ask private takes the thread with it. Anyone else's ask, including a visitor's yes or no, opens a private thread only you and the admin can read, answered by the model Jev picked for that ask with the ask and Jev's verdict as context. Your side threads list under Follow ups on `/me`
 - Ask anything once signed in. Up to sixty words, no word list, on the wall or private. An ask with a held term or a blocklist word still gets its verdict and its answer; it blurs on the wall for others and reads in full on your account page
@@ -67,7 +78,8 @@ The whole policy lives in one file: `convex/questions.ts`. The lanes and their m
 - Admin features: sign in, filter and search every message in every status including private, hide or unhide asks and model answers from the dashboard or straight from the wall, a Users tab with usage per account (asks, tokens, spend) and pause, block, and restore. Blocked emails cannot sign up again. Hidden text is masked server side so it never reaches the browser
 - Jev runs through the Convex AI Gateway by default, on the same deployment token as the model answers, so the app stores no TypeSafe key. If the gateway call fails and `TYPESAFE_API_KEY` is set, the same request goes to TypeSafe directly and the row records which door answered. The hero line and the Judge card name the live provider
 - Graceful no Jev mode. If the gateway refuses the deployment (free plan, anonymous local backend) and no `TYPESAFE_API_KEY` is set, asks publish unjudged on the allowlist alone instead of retrying
-- Terms of service and privacy policy at `/terms` and `/privacy`, written for what this app stores and where it goes, linked from the colophon
+- Terms of service and privacy policy at `/terms` and `/privacy`, written for what this app stores and where it goes, linked from the colophon with About, Open source, and Support
+- Errors read as sentences. Server rules throw `ConvexError` with plain copy ("That handle is taken"), the client shows that copy, and anything unexpected gets a short fallback while the raw error and its request id go to the console
 
 ## Run it locally
 
@@ -122,15 +134,15 @@ OAuth implementation status and remaining provider setup are tracked in `prds/go
 
 ## Scripts
 
-| Command               | What it does                                                     |
-| --------------------- | ---------------------------------------------------------------- |
-| `npm run dev`         | Vite dev server                                                  |
-| `npm run dev:backend` | `convex dev`, watches and pushes the backend                     |
-| `npm run build`       | Production build to `dist`                                       |
-| `npm run typecheck`   | Type checks the app and the Convex functions                     |
+| Command               | What it does                                                         |
+| --------------------- | -------------------------------------------------------------------- |
+| `npm run dev`         | Vite dev server                                                      |
+| `npm run dev:backend` | `convex dev`, watches and pushes the backend                         |
+| `npm run build`       | Production build to `dist`                                           |
+| `npm run typecheck`   | Type checks the app and the Convex functions                         |
 | `npm test`            | Local tests: Jev door, OAuth identity, reply backfill. No deployment |
-| `npm run words:build` | Regenerates `convex/lib/safeWords.ts` from the upstream list     |
-| `npm run deploy`      | Builds and uploads the site through the static hosting component |
+| `npm run words:build` | Regenerates `convex/lib/safeWords.ts` from the upstream list         |
+| `npm run deploy`      | Builds and uploads the site through the static hosting component     |
 
 One off backfills live in `convex/migrations.ts` and run with `npx convex run`. `migrations:backfillReply '{"dryRun":true}'` counts live asks judged before Jev's `reply` question existed; without `dryRun` it asks Jev the one `reply` Choice per row (about $0.00003 each) so those cards can show a verdict chip or the open question line. `limit` caps a run and the log prints the cursor to resume from. Add `--prod` to run it there.
 

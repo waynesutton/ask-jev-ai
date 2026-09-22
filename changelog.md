@@ -4,6 +4,13 @@ All notable changes to this project are documented here. Format follows Keep a C
 
 ## [Unreleased]
 
+### Changed (2026-09-22, open source in the footer and on about)
+
+- The colophon link to the repo read "Source", so the page never said the app was open source. It now reads "Open source", sits between Privacy and Support as before, and still opens the GitHub repo. The same rename lands on the `/about` docs footer and the Terms and Privacy footers. The colophon nav's `aria-label` changes from "Legal" to "Site", since About, Open source, and Support are not legal links.
+- `/about` Built with: the closing paragraph now says the app is open source and links the repo, Convex Auth v2 (alpha), and the Convex components directory. The Auth row names Google, GitHub, and email and password instead of email and password alone, shortened so the docs link does not wrap its arrow alone onto a second line.
+- README: a short Open source section under the live link covers the repo layout, Convex Auth v2 alpha (`npm i @convex-dev/auth@alpha`), the four Convex components in use, and the AI Gateway (beta). The Auth row and the Accounts feature list Google and GitHub. Two shipped features had no README line and get one: the sign in note under a visitor's held ask, and human readable errors from `ConvexError` data with the raw error and request id in the console.
+- Checked against the docs on 2026-09-22: the AI Gateway is beta (the Decisions endpoint stays under `/alpha/`), Convex Auth v2 is alpha from a preview registry, and all three links resolve. The repo has no `LICENSE` file; added to task.md, since "open source" needs one to be true.
+
 ### Added (2026-09-22, a sign in line under a held visitor ask, and geopolitics on the held list)
 
 - "Will russia collapse" and "Will soviet union collapse" were posted by visitors and reached the wall. The held terms gate had not broken: `HELD_TERMS` is identical on dev and prod at 226 terms, covers sexual terms, religion, sexuality, and slavery and race, and had no geopolitics. `russia`, `soviet`, and `collapse` are all on the 12,530 word safe list, so the asks passed the allowlist, missed the held list, and went to Jev like any clean ask.

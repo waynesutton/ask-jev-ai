@@ -233,23 +233,25 @@ function Home() {
       <HowItWorks jev={jev} provider={gate?.provider ?? null} />
 
       {/* Colophon. Three centered mono lines at the end of the page: the
-          builder credit, the disclaimer, then terms, privacy, and source. */}
+          builder credit, the disclaimer, then about, legal, the repo, and
+          support. */}
       <div className="wrap colophon label">
         <a href="https://waynesutton.ai" target="_blank" rel="noreferrer">
           Demo app built by waynesutton.ai{" "}
           <ArrowUpRight size={11} aria-hidden="true" />
         </a>
         <span>Demo app not associated with TypeSafe AI</span>
-        <nav className="colophon__links" aria-label="Legal">
+        <nav className="colophon__links" aria-label="Site">
           <Link href="/about">About</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/privacy">Privacy</Link>
+          {/* The whole app is public on GitHub. Says so in the link. */}
           <a
             href="https://github.com/waynesutton/ask-jev-ai"
             target="_blank"
             rel="noreferrer"
           >
-            Source <ArrowUpRight size={11} aria-hidden="true" />
+            Open source <ArrowUpRight size={11} aria-hidden="true" />
           </a>
           {/* Support goes to the repo's issue tracker. */}
           <a

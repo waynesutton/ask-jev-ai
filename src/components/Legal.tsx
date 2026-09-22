@@ -85,7 +85,7 @@ function LegalPage({
         <footer className="legal__foot label">
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
-          <Out href={REPO}>Source</Out>
+          <Out href={REPO}>Open source</Out>
         </footer>
       </article>
     </main>
