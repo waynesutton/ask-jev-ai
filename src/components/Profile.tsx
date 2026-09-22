@@ -15,9 +15,11 @@ import type { FunctionReturnType } from "convex/server";
 import { api } from "../../convex/_generated/api";
 import { REPLIES, ROUTES, TOPICS } from "../../convex/questions";
 import { microToUsd } from "../../convex/lib/pricing";
+import { useMe } from "../hooks/useMe";
 import { useNow } from "../hooks/useNow";
 import { formatCount, formatUsd, timeAgo } from "../lib/format";
 import { AnswerBlock } from "./AnswerBlock";
+import { AuthLinks } from "./AuthLinks";
 import { Avatar } from "./Avatar";
 import { CopyLink } from "./CopyLink";
 import { FollowUp } from "./FollowUp";
@@ -108,6 +110,9 @@ export function Profile({ handle }: { handle: string }) {
     { initialNumItems: 20 },
   );
   const now = useNow();
+  // A shared profile link is often a visitor's first page. Offer the two
+  // ways in, and bring them back here after.
+  const me = useMe();
 
   useEffect(() => {
     document.title = result
@@ -121,7 +126,10 @@ export function Profile({ handle }: { handle: string }) {
         <Link className="admin__back" href="/">
           <ArrowLeft size={11} aria-hidden="true" /> Back to the wall
         </Link>
-        <ThemeToggle />
+        <span className="hero__right">
+          {me === null && <AuthLinks next={`/${handle}`} />}
+          <ThemeToggle />
+        </span>
       </div>
       <section className="wrap admin__body">
         {result === undefined ? (

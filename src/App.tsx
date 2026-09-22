@@ -14,11 +14,10 @@ import { Lanes } from "./components/Lanes";
 import { Yours } from "./components/Yours";
 import { Wall } from "./components/Wall";
 import { HowItWorks } from "./components/HowItWorks";
+import { AuthLinks } from "./components/AuthLinks";
 import { Avatar } from "./components/Avatar";
 import { Link } from "./components/Link";
 import { ScrollArrows } from "./components/ScrollArrows";
-import { Tooltip } from "./components/Tooltip";
-
 // Every page but the wall loads on demand, so the first paint of the home
 // page does not carry the admin, the thread view, or the legal text.
 const Admin = lazy(() =>
@@ -294,18 +293,7 @@ function AccountMenu() {
   }, [open]);
 
   if (me === undefined) return <span className="account" />;
-  if (me === null) {
-    return (
-      <span className="account__auth">
-        <Tooltip tip="Google, GitHub, or email. Free. 20 asks a minute, model answers, a profile">
-          <Link className="ghost account__signup" href="/sign-up">Sign up</Link>
-        </Tooltip>
-        <Tooltip tip="Ask longer questions, get model answers, keep a history">
-          <Link className="pill pill--small account__signin" href="/sign-in">Sign in</Link>
-        </Tooltip>
-      </span>
-    );
-  }
+  if (me === null) return <AuthLinks />;
 
   return (
     <span className="account" ref={ref}>

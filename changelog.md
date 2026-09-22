@@ -4,6 +4,11 @@ All notable changes to this project are documented here. Format follows Keep a C
 
 ## [Unreleased]
 
+### Added (2026-09-22, sign up and sign in on a shared profile)
+
+- A visitor opening a shared profile link such as `askjev.ai/wayne` had only "Back to the wall" and the theme toggle in the top row. The row now carries the same Sign up ghost and Sign in pill as the home page, right aligned next to the toggle. Both links carry `?next=/:handle`, so after auth the person lands back on the profile they were sent. Signed in accounts see the row unchanged.
+- The pair moved out of `AccountMenu` into `src/components/AuthLinks.tsx` so home and the profile page render one component. Checked on dev at `/wayne` as a visitor: both pills render, hrefs read `/sign-up?next=%2Fwayne` and `/sign-in?next=%2Fwayne`.
+
 ### Fixed (2026-09-22, human error copy on prod, and LinkedIn `in/name`)
 
 - Saving a profile on prod showed `[CONVEX M(profile:update)] [Request ID: ...] Server Error Called by client`. Two things stacked. The server had thrown a plain `ConvexError("LinkedIn should be a username, like @name")` because `in/waynesutton` was rejected, even though the field's own placeholder reads `in/username`. And on prod Convex replaces `error.message` with that wrapper and carries the real sentence in `error.data`; every catch site read `.message`, so people saw the wrapper. Dev was unaffected because `.message` includes the text there, which is why it never showed up before.
