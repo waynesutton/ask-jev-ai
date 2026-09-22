@@ -184,12 +184,14 @@ function clean(raw: string, max: number, label: string): string | undefined {
   return value;
 }
 
-// Social links are stored as a bare handle. Accepts "@name", "name", or a
+// Social links are stored as a bare handle. Accepts "@name", "name",
+// "in/name" (LinkedIn's own path form, which the field hints at), or a
 // full URL to the site and keeps the last path segment.
 function handleLink(raw: string, label: string): string | undefined {
   let value = raw.trim();
   if (value.length === 0) return undefined;
-  value = value.replace(/^https?:\/\/(www\.)?[^/]+\/(in\/)?/i, "");
+  value = value.replace(/^https?:\/\/(www\.)?[^/]+\//i, "");
+  value = value.replace(/^in\//i, "");
   value = value.replace(/^@/, "").replace(/\/+$/, "");
   if (value.length > LINK_MAX || !/^[A-Za-z0-9_.-]+$/.test(value)) {
     throw new ConvexError(`${label} should be a username, like @name`);

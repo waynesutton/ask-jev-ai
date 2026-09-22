@@ -9,6 +9,7 @@ import {
 import { ArrowRight } from "@phosphor-icons/react";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { userMessage } from "../lib/errors";
 import {
   checkWords,
   countOpenWords,
@@ -171,7 +172,7 @@ export function Composer({ sessionId }: Props) {
         setNote(`Slow down. Try again in ${seconds}s`);
       }
     } catch (error) {
-      setNote(error instanceof Error ? error.message : "Could not post");
+      setNote(userMessage(error, "Could not post. Try again"));
     } finally {
       setBusy(false);
     }

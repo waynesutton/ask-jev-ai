@@ -5,6 +5,7 @@ import type { FunctionArgs, FunctionReturnType } from "convex/server";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { useNow } from "../hooks/useNow";
+import { userMessage } from "../lib/errors";
 import { formatCount, formatUsd, timeAgo } from "../lib/format";
 import { Link } from "./Link";
 import { Tooltip } from "./Tooltip";
@@ -256,7 +257,7 @@ function UserDrawer({
       });
       setReason("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not update");
+      setError(userMessage(e, "Could not update. Try again"));
     } finally {
       setBusy(false);
     }

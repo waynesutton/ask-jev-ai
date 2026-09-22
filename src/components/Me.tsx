@@ -13,6 +13,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { modelLabel } from "../../convex/questions";
 import { useMe, type Me as MeRow } from "../hooks/useMe";
 import { useNow } from "../hooks/useNow";
+import { userMessage } from "../lib/errors";
 import { formatCount, timeAgo } from "../lib/format";
 import { navigate } from "../lib/router";
 import { AnswerBlock, type PublicMessage } from "./AnswerBlock";
@@ -284,7 +285,7 @@ function HistoryRow({ m }: { m: PublicMessage }) {
     try {
       await fn();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not update");
+      setError(userMessage(e, "Could not update. Try again"));
     } finally {
       setBusy(false);
     }
@@ -445,7 +446,7 @@ function Settings({ me }: { me: MeRow }) {
       });
       setSaved(true);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not save");
+      setError(userMessage(e, "Could not save your profile. Try again"));
     } finally {
       setBusy(false);
     }
@@ -613,7 +614,7 @@ function Photo({
       const { storageId } = (await res.json()) as { storageId: Id<"_storage"> };
       await setPhoto({ storageId });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed");
+      setError(userMessage(e, "Upload failed. Try a smaller image"));
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -730,7 +731,7 @@ function Danger({ me }: { me: MeRow }) {
       await signOut();
       navigate("/");
     } catch (e) {
-      setDelError(e instanceof Error ? e.message : "Could not delete");
+      setDelError(userMessage(e, "Could not delete the account. Try again"));
       setDeleting(false);
     }
   };

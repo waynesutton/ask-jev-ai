@@ -4,6 +4,13 @@ All notable changes to this project are documented here. Format follows Keep a C
 
 ## [Unreleased]
 
+### Fixed (2026-09-22, human error copy on prod, and LinkedIn `in/name`)
+
+- Saving a profile on prod showed `[CONVEX M(profile:update)] [Request ID: ...] Server Error Called by client`. Two things stacked. The server had thrown a plain `ConvexError("LinkedIn should be a username, like @name")` because `in/waynesutton` was rejected, even though the field's own placeholder reads `in/username`. And on prod Convex replaces `error.message` with that wrapper and carries the real sentence in `error.data`; every catch site read `.message`, so people saw the wrapper. Dev was unaffected because `.message` includes the text there, which is why it never showed up before.
+- New `src/lib/errors.ts` with `userMessage(error, fallback)`. A `ConvexError` with string data returns that sentence. Anything else (a bug, a limit, a dropped connection) logs the raw error to the console, request id included so it can be matched against the dashboard logs, and returns a short fallback such as "Could not save your profile. Try again". Wired into the eight catch sites: profile save, visibility, photo upload, account delete, vote, post, follow up, and admin user status.
+- `handleLink` in `convex/profile.ts` strips a leading `in/` for any social field, so LinkedIn accepts `in/name`, `@name`, `name`, or the full URL. Reproduced the failing save with `convex-test` against the exact fields from the screenshot before the fix and confirmed it saves after.
+- `src/lib/errors.test.ts` covers both branches of `userMessage`.
+
 ### Changed (2026-09-22, Yours is one card that clears itself)
 
 - Yours under the composer shows your newest ask only, not the last three. The card has a head row with the "Yours" label and an X (`Close this card`, 28px hit area, `--ash` on hover, the global focus ring on keyboard). A new ask replaces the card; the X closes it; the closed id goes to `localStorage` (`jev:yours-dismissed`) so a reload does not bring it back. State still hides it when storage is blocked.

@@ -37,6 +37,7 @@ Brief map of the codebase. Keep this current when files are added or change purp
 - `convex/lib/oauth.ts` Verified-email normalization/linking, admin and moderation refusal, stale-account guard, and exact-origin validation.
 - `convex/oauth.test.ts` Isolated Convex tests for account linking, new provider accounts, password duplicate refusal, moderation, admin refusal, and return origins.
 - `src/lib/oauth.ts`, `src/lib/oauth.test.ts` Safe same-origin next paths and typed OAuth error copy with unit tests.
+- `src/lib/errors.ts`, `src/lib/errors.test.ts` `userMessage(error, fallback)`. Reads the sentence from `ConvexError.data` (the only place it survives on prod), logs anything else to the console with its request id, and returns the fallback. Every mutation catch site in the app uses it.
 - `src/components/OauthError.tsx` Accessible app-wide callback error banner, including returns to question pages.
 - `vitest.config.ts` Edge-runtime test configuration; `npm test` runs local tests without deploying.
 - `prds/google-github-sign-in.md` Scope, verified local results, provider setup status, and remaining approval/deployment gates.

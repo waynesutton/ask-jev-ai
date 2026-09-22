@@ -16,6 +16,7 @@ import { MAX_OPEN_WORDS } from "../../convex/lib/words";
 import { useMe } from "../hooks/useMe";
 import { useNow } from "../hooks/useNow";
 import { useSmoothText } from "../hooks/useSmoothText";
+import { userMessage } from "../lib/errors";
 import { timeAgo } from "../lib/format";
 import { AnswerBlock } from "./AnswerBlock";
 import { CopyLink } from "./CopyLink";
@@ -362,7 +363,7 @@ function FollowUpForm({
         setText("");
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not send");
+      setError(userMessage(e, "Could not send. Try again"));
     } finally {
       setBusy(false);
     }

@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { getSessionId } from "../lib/session";
+import { userMessage } from "../lib/errors";
 import { formatCount } from "../lib/format";
 import { Tooltip } from "./Tooltip";
 
@@ -57,7 +58,7 @@ export function VoteButtons({
         setNote(`Slow down, ${Math.ceil(result.retryAfterMs / 1000)}s`);
       }
     } catch (error) {
-      setNote(error instanceof Error ? error.message : "Could not vote");
+      setNote(userMessage(error, "Could not vote. Try again"));
     } finally {
       setBusy(false);
     }
